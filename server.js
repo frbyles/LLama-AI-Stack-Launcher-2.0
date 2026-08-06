@@ -10,6 +10,7 @@ const app = express();
 const port = 5000;
 
 function getAvailableModels() {
+  // CONFIGURE THIS PATH - Point to your models folder
   const modelsDir = '/home/roger/models';
   try {
     const models = [];
@@ -66,6 +67,7 @@ function getAvailableModels() {
   }
 }
 
+// CONFIGURE THESE PATHS - Point to your project directories
 const projects = {
   llamacpp: {
     name: 'Llama.cpp Server (Fable5)',

@@ -5,7 +5,7 @@ A web-based launcher for managing your local AI development stack. Control Pitha
 ## Features
 
 - 🎛️ **Start/Stop Projects** - Manage all 4 projects from one UI
-- 📦 **Model Selection** - Choose from models in `/home/roger/models`
+- 📦 **Model Selection** - Choose from models in your configured models folder
 - ⚙️ **Custom Flags** - Add llama.cpp flags like `-ngl 99 -c 65536`
 - 🔗 **Quick Links** - Access running services directly
 - ⚡ **Real-time Status** - See which projects are running
@@ -85,11 +85,21 @@ Open browser to: **http://localhost:5000**
 4. **Llama.cpp** - https://github.com/thecodacus/llama.cpp
    - Built C++ binary (no setup needed if compiled)
 
+## Configuration
+
+Edit `server.js` to set your models folder:
+
+```javascript
+const modelsDir = '/your/path/to/models'; // Change this path
+```
+
+Then restart the launcher.
+
 ## Usage
 
 1. **Select Model**
-   - Choose from dropdown (auto-scans `/models` folder)
-   - Supports multi-part GGUF files
+   - Choose from dropdown (auto-scans your configured models folder)
+   - Supports multi-part GGUF files (shows first part)
 
 2. **Add Flags** (optional)
    - Example: `-ngl 99 --n-cpu-moe 40 -c 65536 -ctk q8_0 -ctv q8_0`
@@ -119,9 +129,11 @@ Open browser to: **http://localhost:5000**
 - Or: `netstat -ano | findstr :8000` (Windows, then Task Manager to kill)
 
 **Models not showing**
-- Check `/home/roger/models` folder exists
-- Models must be in GGUF format
+- Check your models folder path is correct in `server.js`
+- Make sure the folder exists and has read permissions
+- Models must be in GGUF format (.gguf files)
 - Multi-part models (00001-of-00003) show as single entry
+- Restart launcher after changing the path
 
 **Launcher won't start**
 - Make sure Node.js is installed: `node --version`
