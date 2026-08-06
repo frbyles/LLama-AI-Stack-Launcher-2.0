@@ -192,6 +192,8 @@ app.post('/api/start/:id', (req, res) => {
 
   processes[req.params.id] = proc;
 
+  let responded = false;
+
   proc.on('exit', () => {
     delete processes[req.params.id];
   });
@@ -199,10 +201,16 @@ app.post('/api/start/:id', (req, res) => {
   proc.on('error', (err) => {
     console.error(`Failed to start ${proj.name}:`, err.message);
     delete processes[req.params.id];
-    res.status(500).json({ error: `Failed to start ${proj.name}: ${err.message}` });
+    if (!responded) {
+      responded = true;
+      res.status(500).json({ error: `Failed to start ${proj.name}: ${err.message}` });
+    }
   });
 
-  res.json({ success: true, message: `${proj.name} starting...` });
+  if (!responded) {
+    responded = true;
+    res.json({ success: true, message: `${proj.name} starting...` });
+  }
 });
 
 app.post('/api/stop/:id', (req, res) => {
