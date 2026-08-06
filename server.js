@@ -181,16 +181,25 @@ app.post('/api/start/:id', (req, res) => {
     }
   }
 
-  const proc = spawn(proj.cmd, args, {
+  const spawnOpts = {
     cwd: proj.dir,
     stdio: 'inherit',
-    env
-  });
+    env,
+    shell: process.platform === 'win32' // npm/pnpm are .cmd shims on Windows
+  };
+
+  const proc = spawn(proj.cmd, args, spawnOpts);
 
   processes[req.params.id] = proc;
 
   proc.on('exit', () => {
     delete processes[req.params.id];
+  });
+
+  proc.on('error', (err) => {
+    console.error(`Failed to start ${proj.name}:`, err.message);
+    delete processes[req.params.id];
+    res.status(500).json({ error: `Failed to start ${proj.name}: ${err.message}` });
   });
 
   res.json({ success: true, message: `${proj.name} starting...` });
