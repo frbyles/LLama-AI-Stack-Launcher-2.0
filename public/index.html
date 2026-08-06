@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Launcher</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .config-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .config-panel h2 {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .config-row {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .config-field {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .config-field label {
+      display: block;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .config-field input,
+    .config-field select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    .config-field input:focus,
+    .config-field select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .engine-section {
+      margin-bottom: 30px;
+    }
+
+    .engine-title {
+      color: #667eea;
+      font-size: 0.85em;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+
+    .projects-title {
+      color: #667eea;
+      font-size: 0.85em;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      letter-spacing: 1px;
+    }
+
+    .engine-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .engine-card .project-name {
+      color: white;
+    }
+
+    .engine-card .project-info {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .engine-card .status-badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .save-config {
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .save-config:hover {
+      background: #5568d3;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .project-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .project-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .project-name {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 500;
+    }
+
+    .status-running {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-stopped {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .project-info {
+      margin-bottom: 15px;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .project-info div {
+      margin-bottom: 5px;
+    }
+
+    .port-label {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .project-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95em;
+    }
+
+    .btn-start {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-start:hover:not(:disabled) {
+      background: #218838;
+    }
+
+    .btn-stop {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-stop:hover:not(:disabled) {
+      background: #c82333;
+    }
+
+    .btn-link {
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-link:hover {
+      background: #5568d3;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 Project Launcher</h1>
+      <p>Manage your local development stack</p>
+    </div>
+
+    <div class="config-panel">
+      <h2>⚙️ Model Configuration</h2>
+      <div class="config-row">
+        <div class="config-field">
+          <label>Model Provider</label>
+          <select id="modelProvider">
+            <option value="local">Local (Llama.cpp)</option>
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="ollama">Ollama</option>
+            <option value="deepseek">DeepSeek</option>
+          </select>
+        </div>
+        <div class="config-field">
+          <label>Model Name</label>
+          <input type="text" id="modelName" placeholder="e.g., fable5">
+        </div>
+        <div class="config-field">
+          <label>Local Endpoint</label>
+          <input type="text" id="localModelEndpoint" placeholder="http://localhost:8000/v1">
+        </div>
+        <div class="config-field">
+          <label>API Key (optional)</label>
+          <input type="password" id="apiKey" placeholder="Leave blank to use env vars">
+        </div>
+        <button class="save-config" onclick="saveConfig()">Save</button>
+      </div>
+      <div id="configMessage"></div>
+    </div>
+
+    <div class="engine-section">
+      <div class="engine-title">🔧 LLM Engine</div>
+
+      <div class="config-panel">
+        <h3 style="margin-bottom: 15px; color: #333;">Select Model & Flags</h3>
+        <div class="config-row">
+          <div class="config-field" style="flex: 1;">
+            <label>Available Models</label>
+            <select id="modelSelect" onchange="updateSelectedModel()">
+              <option value="">-- Choose a model --</option>
+            </select>
+          </div>
+          <div id="modelInfo" style="flex: 1; padding: 12px; background: #f5f5f5; border-radius: 6px; color: #666; font-size: 0.9em;">
+            Select a model to see details
+          </div>
+        </div>
+        <div style="margin-top: 15px;">
+          <label style="display: block; font-size: 0.9em; margin-bottom: 5px; color: #666; font-weight: 500;">Custom Flags (optional)</label>
+          <textarea id="customFlags" placeholder="-ngl 99 --n-cpu-moe 40 -c 65536 -ctk q8_0 -ctv q8_0 -fa 1 --jinja -cnv --reasoning-budget 0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.85em; min-height: 60px; resize: vertical;" onchange="saveCustomFlags()"></textarea>
+          <div style="font-size: 0.85em; color: #999; margin-top: 5px;">Examples: -ngl 99 --n-cpu-moe 40 -c 65536 -ctk q8_0</div>
+        </div>
+      </div>
+
+      <div class="projects-grid" id="engineGrid"></div>
+    </div>
+
+    <div>
+      <div class="projects-title">📦 Projects</div>
+
+      <div class="projects-grid" id="projectsGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    async function loadProjects() {
+      const res = await fetch('/api/projects');
+      const projects = await res.json();
+
+      const engine = projects.filter(p => p.isEngine);
+      const apps = projects.filter(p => !p.isEngine);
+
+      const engineGrid = document.getElementById('engineGrid');
+      engineGrid.innerHTML = engine.map(proj => `
+        <div class="project-card engine-card">
+          <div class="project-header">
+            <span class="project-name">${proj.name}</span>
+            <span class="status-badge ${proj.running ? 'status-running' : 'status-stopped'}">
+              ${proj.running ? '● Running' : '○ Stopped'}
+            </span>
+          </div>
+          <div class="project-info">
+            <div><span class="port-label">Port:</span> ${proj.port}</div>
+            <div><span class="port-label">Endpoint:</span> ${proj.url}/v1</div>
+          </div>
+          <div class="project-actions">
+            <button class="btn btn-start" onclick="startProject('${proj.id}')" ${proj.running ? 'disabled' : ''}>
+              Start
+            </button>
+            <button class="btn btn-stop" onclick="stopProject('${proj.id}')" ${!proj.running ? 'disabled' : ''}>
+              Stop
+            </button>
+          </div>
+          <div id="msg-${proj.id}"></div>
+        </div>
+      `).join('');
+
+      const grid = document.getElementById('projectsGrid');
+      grid.innerHTML = apps.map(proj => `
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-name">${proj.name}</span>
+            <span class="status-badge ${proj.running ? 'status-running' : 'status-stopped'}">
+              ${proj.running ? '● Running' : '○ Stopped'}
+            </span>
+          </div>
+          <div class="project-info">
+            <div><span class="port-label">Port:</span> ${proj.port}</div>
+            <div><span class="port-label">Directory:</span> ${proj.dir}</div>
+          </div>
+          <div class="project-actions">
+            <button class="btn btn-start" onclick="startProject('${proj.id}')" ${proj.running ? 'disabled' : ''}>
+              Start
+            </button>
+            <button class="btn btn-stop" onclick="stopProject('${proj.id}')" ${!proj.running ? 'disabled' : ''}>
+              Stop
+            </button>
+            ${proj.running ? `<a href="${proj.url}" target="_blank" class="btn btn-link">Open</a>` : ''}
+          </div>
+          <div id="msg-${proj.id}"></div>
+        </div>
+      `).join('');
+    }
+
+    async function startProject(id) {
+      const res = await fetch(`/api/start/${id}`, { method: 'POST' });
+      const data = await res.json();
+      showMessage(id, data.message, 'success');
+      setTimeout(loadProjects, 500);
+    }
+
+    async function stopProject(id) {
+      const res = await fetch(`/api/stop/${id}`, { method: 'POST' });
+      const data = await res.json();
+      showMessage(id, data.message, 'success');
+      setTimeout(loadProjects, 500);
+    }
+
+    async function saveConfig() {
+      const config = {
+        modelProvider: document.getElementById('modelProvider').value,
+        modelName: document.getElementById('modelName').value,
+        apiKey: document.getElementById('apiKey').value,
+        localModelEndpoint: document.getElementById('localModelEndpoint').value
+      };
+
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config)
+      });
+
+      const data = await res.json();
+      showMessage('config', 'Settings saved!', 'success', true);
+    }
+
+    function showMessage(id, text, type, isConfig = false) {
+      const msgEl = document.getElementById(isConfig ? 'configMessage' : `msg-${id}`);
+      msgEl.textContent = text;
+      msgEl.className = `message ${type}`;
+      setTimeout(() => msgEl.textContent = '', 3000);
+    }
+
+    async function loadConfig() {
+      const res = await fetch('/api/config');
+      const config = await res.json();
+      document.getElementById('modelProvider').value = config.modelProvider;
+      document.getElementById('modelName').value = config.modelName;
+      document.getElementById('localModelEndpoint').value = config.localModelEndpoint || 'http://localhost:8000/v1';
+      if (config.customFlags) {
+        document.getElementById('customFlags').value = config.customFlags;
+      }
+    }
+
+    async function loadModels() {
+      const res = await fetch('/api/models');
+      const models = await res.json();
+      const select = document.getElementById('modelSelect');
+
+      select.innerHTML = '<option value="">-- Choose a model --</option>';
+
+      models.forEach(modelGroup => {
+        modelGroup.files.forEach(file => {
+          const option = document.createElement('option');
+          option.value = file.fullPath;
+          option.textContent = `${modelGroup.name} / ${file.name}`;
+          select.appendChild(option);
+        });
+      });
+    }
+
+    function updateSelectedModel() {
+      const select = document.getElementById('modelSelect');
+      const modelPath = select.value;
+      const modelInfo = document.getElementById('modelInfo');
+
+      if (modelPath) {
+        const fileName = modelPath.split('/').pop();
+        modelInfo.textContent = `📦 ${fileName}`;
+
+        // Save to backend
+        fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ selectedModel: modelPath })
+        });
+      } else {
+        modelInfo.textContent = 'Select a model to see details';
+      }
+    }
+
+    function saveCustomFlags() {
+      const flags = document.getElementById('customFlags').value;
+      fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customFlags: flags })
+      });
+    }
+
+    loadModels();
+    loadConfig();
+    loadProjects();
+    setInterval(loadProjects, 2000);
+  </script>
+</body>
+</html>
