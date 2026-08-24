@@ -15,66 +15,73 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      padding: 20px;
+      padding: 10px;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
     .header {
       text-align: center;
       color: white;
-      margin-bottom: 40px;
+      margin-bottom: 15px;
+      padding: 5px 0;
     }
 
     .header h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
+      font-size: 1.8em;
+      margin-bottom: 3px;
+    }
+
+    .header p {
+      font-size: 0.85em;
+      opacity: 0.9;
     }
 
     .config-panel {
       background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     }
 
     .config-panel h2 {
-      font-size: 1.2em;
-      margin-bottom: 15px;
+      font-size: 1em;
+      margin-bottom: 10px;
       color: #333;
     }
 
     .config-row {
       display: flex;
-      gap: 15px;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: end;
     }
 
     .config-field {
       flex: 1;
-      min-width: 200px;
+      min-width: 85px;
     }
 
     .config-field label {
       display: block;
-      font-size: 0.9em;
-      margin-bottom: 5px;
-      color: #666;
+      font-size: 0.78em;
+      margin-bottom: 3px;
+      color: #555;
       font-weight: 500;
+      line-height: 1.2;
     }
 
     .config-field input,
     .config-field select {
       width: 100%;
-      padding: 8px 12px;
+      padding: 6px 8px;
       border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.95em;
+      border-radius: 5px;
+      font-size: 0.85em;
     }
 
     .config-field input:focus,
@@ -85,24 +92,24 @@
     }
 
     .engine-section {
-      margin-bottom: 30px;
+      margin-bottom: 15px;
     }
 
     .engine-title {
       color: #667eea;
-      font-size: 0.85em;
-      font-weight: 600;
+      font-size: 0.75em;
+      font-weight: 700;
       text-transform: uppercase;
-      margin-bottom: 15px;
+      margin-bottom: 8px;
       letter-spacing: 1px;
     }
 
     .projects-title {
       color: #667eea;
-      font-size: 0.85em;
-      font-weight: 600;
+      font-size: 0.75em;
+      font-weight: 700;
       text-transform: uppercase;
-      margin-bottom: 15px;
+      margin-bottom: 8px;
       letter-spacing: 1px;
     }
 
@@ -142,41 +149,51 @@
 
     .projects-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
     }
 
     .project-card {
       background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.15s, box-shadow 0.15s;
+      /* Grid items stretch to the tallest card in their row by default; laying this
+         out as a column with actions pushed to the bottom keeps Start/Stop/Launch
+         buttons aligned across cards even when one has less info above it (e.g. the
+         agent card has no Port line, so it'd otherwise sit a line higher). */
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
     }
 
     .project-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     }
 
     .project-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 8px;
     }
 
     .project-name {
-      font-size: 1.3em;
+      font-size: 1em;
       font-weight: 600;
       color: #333;
+      line-height: 1.2;
     }
 
     .status-badge {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.85em;
-      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.72em;
+      font-weight: 600;
+      white-space: nowrap;
     }
 
     .status-running {
@@ -190,34 +207,36 @@
     }
 
     .project-info {
-      margin-bottom: 15px;
-      font-size: 0.9em;
-      color: #666;
+      margin-bottom: 10px;
+      font-size: 0.8em;
+      color: #555;
     }
 
     .project-info div {
-      margin-bottom: 5px;
+      margin-bottom: 3px;
     }
 
     .port-label {
-      font-weight: 500;
-      color: #333;
+      font-weight: 600;
+      color: #444;
     }
 
     .project-actions {
       display: flex;
-      gap: 10px;
+      gap: 6px;
+      margin-top: auto;
+      padding-top: 8px;
     }
 
     .btn {
       flex: 1;
-      padding: 10px;
+      padding: 7px 10px;
       border: none;
-      border-radius: 6px;
-      font-weight: 500;
+      border-radius: 5px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.95em;
+      transition: all 0.15s;
+      font-size: 0.82em;
     }
 
     .btn-start {
@@ -251,6 +270,38 @@
       background: #5568d3;
     }
 
+    .btn-set-dir {
+      padding: 6px 10px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+
+    .btn-set-dir:hover {
+      background: #5568d3;
+    }
+
+    .btn-browse-dir {
+      padding: 6px 10px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+
+    .btn-browse-dir:hover {
+      background: #5568d3;
+    }
+
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -273,6 +324,152 @@
       background: #f8d7da;
       color: #721c24;
     }
+    /* ADDED: Model Folder Scanner */
+    .btn-add-model {
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+      font-size: 0.95em;
+    }
+    .btn-add-model:hover {
+      background: #5568d3;
+    }
+    .btn-clear-model {
+      padding: 8px 16px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+      font-size: 0.95em;
+    }
+    .btn-clear-model:hover {
+      background: #c82333;
+    }
+    /* ADDED: Folder browser modal */
+    .folder-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .folder-dialog {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .folder-dialog-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .folder-dialog-header h3 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .folder-path {
+      font-family: monospace;
+      font-size: 0.85em;
+      color: #667eea;
+      word-break: break-all;
+    }
+    .folder-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 20px;
+      min-height: 200px;
+    }
+    .folder-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #333;
+      font-size: 0.95em;
+    }
+    .folder-item:hover {
+      background: #f0f0ff;
+    }
+    .folder-hint {
+      padding: 0 20px 10px;
+      font-size: 0.85em;
+      color: #666;
+    }
+    .folder-dialog-footer {
+      display: flex;
+      gap: 10px;
+      padding: 15px 20px;
+      border-top: 1px solid #eee;
+    }
+    /* Project directory browse buttons */
+    .dir-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .dir-path {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.78em;
+      color: #555;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn-browse-dir {
+      padding: 4px 10px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.75em;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-browse-dir:hover {
+      background: #5568d3;
+    }
+    .btn-reset-dir {
+      padding: 4px 10px;
+      background: #f59e0b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.75em;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-reset-dir:hover {
+      background: #d97706;
+    }
+    .saved-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #d4edda;
+      color: #155724;
+      border-radius: 10px;
+      font-size: 0.7em;
+      font-weight: 600;
+      margin-left: 6px;
+    }
   </style>
 </head>
 <body>
@@ -286,7 +483,9 @@
       <h2>⚙️ Model Configuration</h2>
       <div class="config-row">
         <div class="config-field">
-          <label>Model Provider</label>
+          <label for="modelProvider" title="Which AI provider to use for API calls. 'Local' routes through your llama.cpp server on this machine.">
+            Model Provider
+          </label>
           <select id="modelProvider">
             <option value="local">Local (Llama.cpp)</option>
             <option value="anthropic">Anthropic (Claude)</option>
@@ -296,16 +495,52 @@
           </select>
         </div>
         <div class="config-field">
-          <label>Model Name</label>
+          <label for="modelName" title="A friendly name to identify this model in API requests (e.g., fable5). Not used by llama.cpp itself.">
+            Model Name
+          </label>
           <input type="text" id="modelName" placeholder="e.g., fable5">
         </div>
         <div class="config-field">
-          <label>Local Endpoint</label>
-          <input type="text" id="localModelEndpoint" placeholder="http://localhost:8000/v1">
+          <label for="localModelEndpoint" title="The base URL of the OpenAI-compatible chat completions endpoint. Llama.cpp exposes this at /v1 by default.">
+            Local Endpoint
+          </label>
+          <input type="text" id="localModelEndpoint" placeholder="http://localhost:8080/v1">
         </div>
         <div class="config-field">
-          <label>API Key (optional)</label>
+          <label for="apiKey" title="API key for cloud providers (Anthropic, OpenAI, etc.). Leave blank to use environment variables (ANTHROPIC_API_KEY, OPENAI_API_KEY, etc.).">
+            API Key (optional)
+          </label>
           <input type="password" id="apiKey" placeholder="Leave blank to use env vars">
+        </div>
+        <div class="config-field" style="min-width: 100px;">
+          <label for="contextWindow" title="Context window size in tokens. pi uses this to determine when to compact the conversation. Default: 128000 (128k).">
+            Context Window
+          </label>
+          <input type="number" id="contextWindow" value="128000" placeholder="128000" style="flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85em;">
+          <p style="font-size: 0.7em; color: #888; margin-top: 3px;">128k default</p>
+        </div>
+        <div class="config-field" style="min-width: 100px;">
+          <label for="reserveTokens" title="Tokens reserved for the LLM's response before compaction triggers. Default: 16384 (16k).">
+            Reserve Tokens
+          </label>
+          <input type="number" id="reserveTokens" value="16384" placeholder="16384" style="flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85em;">
+          <p style="font-size: 0.7em; color: #888; margin-top: 3px;">16k default</p>
+        </div>
+        <div class="config-field" style="min-width: 100px;">
+          <label for="keepRecentTokens" title="Recent tokens to preserve during compaction. Older messages get summarized. Default: 20000 (20k).">
+            Keep Recent
+          </label>
+          <input type="number" id="keepRecentTokens" value="20000" placeholder="20000" style="flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85em;">
+          <p style="font-size: 0.7em; color: #888; margin-top: 3px;">20k default</p>
+        </div>
+        <div class="config-field">
+          <label for="modelsDir" title="Path to your GGUF models directory. Leave blank to manually add model folders below.">
+            Models Directory
+          </label>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="modelsDir" placeholder="/path/to/models" style="flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85em;">
+            <button id="setModelsDirBtn" class="btn-set-dir" style="padding: 6px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.85em; white-space: nowrap;">Set</button>
+          </div>
         </div>
         <button class="save-config" onclick="saveConfig()">Save</button>
       </div>
@@ -319,29 +554,408 @@
         <h3 style="margin-bottom: 15px; color: #333;">Select Model & Flags</h3>
         <div class="config-row">
           <div class="config-field" style="flex: 1;">
-            <label>Available Models</label>
+            <label for="modelSelect" title="Pick a GGUF model file. The launcher will auto-load any previously saved flags for this model.">
+              Available Models
+            </label>
             <select id="modelSelect" onchange="updateSelectedModel()">
               <option value="">-- Choose a model --</option>
             </select>
+            <div id="modelScanStatus" style="font-size: 0.85em; color: #4caf50; margin-top: 6px;"></div>
+            <button id="addModelFolderBtn" class="btn-add-model" style="margin-top: 10px; width: 100%; padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.85em;" title="Select a folder on your computer that contains .gguf model files. The folder will be scanned for models.">📂 Browse for Models Folder</button>
           </div>
           <div id="modelInfo" style="flex: 1; padding: 12px; background: #f5f5f5; border-radius: 6px; color: #666; font-size: 0.9em;">
             Select a model to see details
           </div>
+          <button id="resetFlagsBtn" class="btn-reset-flags" style="display: none; margin-top: 8px; width: 100%; padding: 6px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85em;" title="Reset all flags to defaults and remove saved flags for this model">
+            🔄 Reset Flags to Defaults
+          </button>
         </div>
-        <div style="margin-top: 15px;">
-          <label style="display: block; font-size: 0.9em; margin-bottom: 5px; color: #666; font-weight: 500;">Custom Flags (optional)</label>
-          <textarea id="customFlags" placeholder="-ngl 99 --n-cpu-moe 40 -c 65536 -ctk q8_0 -ctv q8_0 -fa 1 --jinja -cnv --reasoning-budget 0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.85em; min-height: 60px; resize: vertical;" onchange="saveCustomFlags()"></textarea>
-          <div style="font-size: 0.85em; color: #999; margin-top: 5px;">Examples: -ngl 99 --n-cpu-moe 40 -c 65536 -ctk q8_0</div>
+        <!-- Structured llama.cpp flags -->
+        <div style="margin-top: 18px; border-top: 1px solid #eee; padding-top: 18px;">
+          <div style="font-size: 0.85em; color: #667eea; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">🔧 LLama.cpp Flags</div>
+
+          <!-- Performance & Reasoning Group -->
+          <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">⚡ Performance</div>
+          <div class="config-row">
+            <div class="config-field" style="min-width: 90px;">
+              <label title="Number of layers to offload to GPU. Set to 99 for all layers if VRAM allows.">
+                GPU Layers (-ngl)
+              </label>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-ngl</span>
+                <input type="number" id="ngl" min="0" max="999" value="99" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('ngl')" onchange="onFlagChange('ngl')">
+              </div>
+            </div>
+            <div class="config-field" style="min-width: 90px;">
+              <label title="Number of CPU workers for Mixture-of-Experts layers. Higher = more parallel MoE inference.">
+                CPU MOE Workers
+              </label>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--n-cpu-moe</span>
+                <input type="number" id="n-cpu-moe" min="1" max="128" value="40" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('n-cpu-moe')" onchange="onFlagChange('n-cpu-moe')">
+              </div>
+            </div>
+            <div class="config-field" style="min-width: 80px;">
+              <label title="Flash Attention: speed up attention computation, uses more VRAM.">
+                Flash Attention
+              </label>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-fa</span>
+                <select id="fa" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('fa')">
+                  <option value="1" selected>Enabled</option>
+                  <option value="0">Disabled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Template Group -->
+          <div class="config-row" style="margin-top: 8px;">
+            <div class="config-field" style="min-width: 85px;">
+              <label title="Use Jinja templating for chat templates (more flexible).">
+                Jinja Template
+              </label>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--jinja</span>
+                <select id="jinja" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('jinja')">
+                  <option value="1" selected>Enabled</option>
+                  <option value="0">Disabled</option>
+                </select>
+              </div>
+            </div>
+            <div class="config-field" style="min-width: 90px;">
+              <label title="Use conversational chat template (-cnv). Recommended for chat use.">
+                Conversational (-cnv)
+              </label>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-cnv</span>
+                <select id="cnv" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('cnv')">
+                  <option value="1" selected>Enabled</option>
+                  <option value="0">Disabled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Context & Memory Group -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🧠 Context & Memory</div>
+            <div class="config-row">
+              <div class="config-field" style="flex: 1;">
+                <label title="Context window size in tokens. Supports: 4k → 4096, 400k → 400000, or raw numbers.">
+                  Context (-c)
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-c</span>
+                  <input type="text" id="contextAmount" placeholder="e.g. 4k, 32k, 65536" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onContextAmountChange()" onchange="onContextAmountChange()">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 80px;">
+                <label title="KV cache quantization for tokens. Affects VRAM usage and quality. turbo2/turbo3/turbo4 (2/3/4-bit TurboQuant) are only supported in some forks of official llama.cpp, not mainline — check your build before picking one.">
+                  KV Cache Tokens (-ctk)
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-ctk</span>
+                  <select id="ctk" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('ctk')">
+                    <option value="q8_0" selected>q8_0</option>
+                    <option value="q6_k">q6_k</option>
+                    <option value="q5_0">q5_0</option>
+                    <option value="q5_1">q5_1</option>
+                    <option value="q4_0">q4_0</option>
+                    <option value="turbo2" title="Fork-only: not in mainline llama.cpp">turbo2</option>
+                    <option value="turbo3" title="Fork-only: not in mainline llama.cpp">turbo3</option>
+                    <option value="turbo4" title="Fork-only: not in mainline llama.cpp">turbo4</option>
+                    <option value="f16">f16</option>
+                    <option value="f32">f32</option>
+                  </select>
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 80px;">
+                <label title="KV cache quantization for values. Affects VRAM usage and quality. turbo2/turbo3/turbo4 (2/3/4-bit TurboQuant) are only supported in some forks of official llama.cpp, not mainline — check your build before picking one.">
+                  KV Cache Values (-ctv)
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-ctv</span>
+                  <select id="ctv" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('ctv')">
+                    <option value="q8_0" selected>q8_0</option>
+                    <option value="q6_k">q6_k</option>
+                    <option value="q5_0">q5_0</option>
+                    <option value="q5_1">q5_1</option>
+                    <option value="q4_0">q4_0</option>
+                    <option value="turbo2" title="Fork-only: not in mainline llama.cpp">turbo2</option>
+                    <option value="turbo3" title="Fork-only: not in mainline llama.cpp">turbo3</option>
+                    <option value="turbo4" title="Fork-only: not in mainline llama.cpp">turbo4</option>
+                    <option value="f16">f16</option>
+                    <option value="f32">f32</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reasoning Group -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🧘 Reasoning</div>
+            <div class="config-row">
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Reasoning chain format. 'deepseek' for DeepSeek-style CoT, 'none' to disable.">
+                  Reasoning Format
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--reasoning-format</span>
+                  <select id="reasoningFormat" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('reasoningFormat')">
+                    <option value="deepseek" selected>deepseek</option>
+                    <option value="none">none (disabled)</option>
+                    <option value="thinking">thinking</option>
+                  </select>
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Budget for reasoning tokens. 0 = unlimited, higher = shorter reasoning.">
+                  Reasoning Budget
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--reasoning-budget</span>
+                  <input type="number" id="reasoningBudget" min="0" max="999999" value="0" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('reasoningBudget')" onchange="onFlagChange('reasoningBudget')">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Generation Group -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">📝 Generation</div>
+            <div class="config-row">
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Maximum number of tokens to generate in the response. 0 or blank = no limit (model decides when to stop).">
+                  Max Tokens (--n-predict)
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--n-predict</span>
+                  <input type="number" id="nPredict" min="0" max="999999" placeholder="0 = unlimited" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('nPredict')" onchange="onFlagChange('nPredict')">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sampling Group -->
+          <div style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+            <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🎛️ Sampling</div>
+            <div class="config-row">
+              <div class="config-field" style="min-width: 85px;">
+                <label title="Temperature. Higher = more creative/random, lower = more focused/deterministic. 0 = greedy.">
+                  Temperature
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--temp</span>
+                  <input type="number" id="temp" min="0" max="5" step="0.05" value="0.8" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('temp')" onchange="onFlagChange('temp')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 85px;">
+                <label title="Top-p nucleus sampling. Limits token selection to the smallest set whose cumulative probability exceeds this value.">
+                  Top-p
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--top-p</span>
+                  <input type="number" id="topP" min="0" max="1" step="0.01" value="0.95" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('topP')" onchange="onFlagChange('topP')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 80px;">
+                <label title="Top-k sampling. Only consider the top K most likely tokens at each step.">
+                  Top-k
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--top-k</span>
+                  <input type="number" id="topK" min="0" max="200" value="40" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('topK')" onchange="onFlagChange('topK')">
+                </div>
+              </div>
+            </div>
+            <div class="config-row" style="margin-top: 8px;">
+              <div class="config-field" style="min-width: 85px;">
+                <label title="Repeat penalty. Higher = stronger punishment for repeated tokens/phrases. 1.0 = no penalty.">
+                  Repeat Penalty
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--repeat-penalty</span>
+                  <input type="number" id="repeatPenalty" min="0" max="5" step="0.05" value="1.1" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('repeatPenalty')" onchange="onFlagChange('repeatPenalty')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Number of recent tokens to check for repetition when applying repeat penalty.">
+                  Repeat Window
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--repeat-last-n</span>
+                  <input type="number" id="repeatLastN" min="0" max="512" value="64" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('repeatLastN')" onchange="onFlagChange('repeatLastN')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 85px;">
+                <label title="Min-p sampling. Alternative to top-p. Sets a minimum probability threshold for token selection.">
+                  Min-p
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--min-p</span>
+                  <input type="number" id="minP" min="0" max="1" step="0.01" value="0.05" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('minP')" onchange="onFlagChange('minP')">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance Group -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">💻 Performance</div>
+            <div class="config-row">
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Number of CPU threads to use. Set to your physical core count for best performance.">
+                  Threads
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--threads</span>
+                  <input type="number" id="threads" min="1" max="256" value="0" placeholder="auto" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('threads')" onchange="onFlagChange('threads')">
+                </div>
+                <p id="threadsHint" style="font-size: 0.7em; color: #888; margin-top: 3px;"></p>
+              </div>
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Number of threads for batch inference. Often set lower than main threads.">
+                  Batch Threads
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--threads-batch</span>
+                  <input type="number" id="threadsBatch" min="1" max="256" value="0" placeholder="auto" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('threadsBatch')" onchange="onFlagChange('threadsBatch')">
+                </div>
+                <p id="threadsBatchHint" style="font-size: 0.7em; color: #888; margin-top: 3px;"></p>
+              </div>
+              <div class="config-field" style="min-width: 85px;">
+                <label title="Batch size for prompt processing. Higher = faster but uses more memory.">
+                  Batch Size
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--batch-size</span>
+                  <input type="number" id="batchSize" min="1" max="4096" value="512" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('batchSize')" onchange="onFlagChange('batchSize')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 110px;">
+                <label title="Disable memory-mapping the model file. Forces the whole model to load into RAM up front — slower to start, but avoids page faults during inference. Off (mmap used) by default.">
+                  Memory Mapping
+                </label>
+                <select id="noMmap" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('noMmap')">
+                  <option value="0" selected>Enabled (mmap)</option>
+                  <option value="1">Disabled (--no-mmap)</option>
+                </select>
+              </div>
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Lock the model in RAM with mlock, preventing it from being swapped to disk. Uses more memory; disabled by default.">
+                  Lock Memory
+                </label>
+                <select id="mlock" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('mlock')">
+                  <option value="0" selected>Disabled</option>
+                  <option value="1">Enabled (--mlock)</option>
+                </select>
+              </div>
+              <div class="config-field" style="min-width: 110px;">
+                <label title="Repacks quantized weights into a more SIMD-friendly layout at load time for faster prompt processing. Enabled by default; -nr / --no-repack turns it off (e.g. if repacking is slow to load or causes issues on your hardware).">
+                  Weight Repacking
+                </label>
+                <select id="noRepack" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('noRepack')">
+                  <option value="0" selected>Enabled</option>
+                  <option value="1">Disabled (-nr)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Server Group (optional) -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🌐 Server (optional)</div>
+            <div class="config-row">
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Host address to bind the server to. Leave blank to skip --host flag.">
+                  Host
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--host</span>
+                  <input type="text" id="host" placeholder="e.g. 0.0.0.0" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('host')" onchange="onFlagChange('host')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 80px;">
+                <label title="Port to listen on. Leave blank to skip --port flag.">
+                  Port
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--port</span>
+                  <input type="number" id="port" min="1" max="65535" placeholder="8080" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('port')" onchange="onFlagChange('port')">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RPC Workers (optional, off by default — machine-specific) -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🔗 RPC Workers (optional)</div>
+            <div class="config-row">
+              <div class="config-field" style="min-width: 110px;">
+                <label title="Enable to offload layers to remote llama.cpp RPC server(s) via --rpc. Leave disabled unless you have RPC workers reachable on your network.">
+                  RPC Offload
+                </label>
+                <select id="rpcEnabled" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('rpcEnabled')">
+                  <option value="0" selected>Disabled</option>
+                  <option value="1">Enabled</option>
+                </select>
+              </div>
+              <div class="config-field" style="min-width: 200px; flex: 1;">
+                <label title="Address(es) of RPC worker server(s), e.g. 10.42.0.2:50052. Comma-separate multiple workers. Only used when RPC Offload is Enabled.">
+                  Worker Address(es)
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--rpc</span>
+                  <input type="text" id="rpcAddress" placeholder="e.g. 10.42.0.2:50052" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('rpcAddress')" onchange="onFlagChange('rpcAddress')">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legacy Custom Flags (fallback) -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <label for="customFlags" style="display: block; font-size: 0.85em; margin-bottom: 5px; color: #999; font-weight: 500;" title="Any additional flags not covered by the structured fields above. Space-separated, e.g. --temp 0.8 --top-p 0.9">
+              Extra Custom Flags (optional)
+            </label>
+            <textarea id="customFlags" placeholder="Add any additional flags not covered above..." style="width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.85em; min-height: 50px; resize: vertical;" onchange="saveCustomFlags()"></textarea>
+          </div>
+
+          <div id="contextPreview" style="font-size: 0.85em; color: #667eea; margin-top: 4px;"></div>
+          <div id="previewFlags" style="font-size: 0.85em; color: #4caf50; margin-top: 4px; word-break: break-all;"></div>
+
+          <!-- Engine start/stop lives here, right under the flags that build its command -->
+          <div id="engineControls" style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;"></div>
         </div>
       </div>
-
-      <div class="projects-grid" id="engineGrid"></div>
     </div>
 
     <div>
       <div class="projects-title">📦 Projects</div>
 
-      <div class="projects-grid" id="projectsGrid"></div>
+      <div class="projects-grid" id="projectsGrid">
+        <!-- display:contents so these wrappers are invisible to the grid layout, while
+             letting the two groups be re-rendered independently below. -->
+        <div id="statefulProjectCards" style="display: contents;"></div>
+        <div id="terminalProjectCards" style="display: contents;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADDED: Folder browser modal -->
+  <div class="folder-overlay" id="folderBrowserOverlay">
+    <div class="folder-dialog">
+      <div class="folder-dialog-header">
+        <h3>📂 Select Folder with GGUF Models</h3>
+        <div class="folder-path" id="folderBrowserPath"></div>
+      </div>
+      <div class="folder-list" id="folderBrowserList"></div>
+      <div class="folder-hint" id="folderBrowserHint"></div>
+      <div class="folder-dialog-footer">
+        <button class="btn btn-start" id="folderBrowserSelect">Select This Folder</button>
+        <button class="btn btn-stop" id="folderBrowserCancel">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -353,33 +967,28 @@
       const engine = projects.filter(p => p.isEngine);
       const apps = projects.filter(p => !p.isEngine);
 
-      const engineGrid = document.getElementById('engineGrid');
+      const engineGrid = document.getElementById('engineControls');
       engineGrid.innerHTML = engine.map(proj => `
-        <div class="project-card engine-card">
-          <div class="project-header">
-            <span class="project-name">${proj.name}</span>
-            <span class="status-badge ${proj.running ? 'status-running' : 'status-stopped'}">
-              ${proj.running ? '● Running' : '○ Stopped'}
-            </span>
-          </div>
-          <div class="project-info">
-            <div><span class="port-label">Port:</span> ${proj.port}</div>
-            <div><span class="port-label">Endpoint:</span> ${proj.url}/v1</div>
-          </div>
-          <div class="project-actions">
-            <button class="btn btn-start" onclick="startProject('${proj.id}')" ${proj.running ? 'disabled' : ''}>
-              Start
-            </button>
-            <button class="btn btn-stop" onclick="stopProject('${proj.id}')" ${!proj.running ? 'disabled' : ''}>
-              Stop
-            </button>
-          </div>
-          <div id="msg-${proj.id}"></div>
+        <div class="project-header">
+          <span class="project-name">${proj.name}</span>
+          <span class="status-badge ${proj.running ? 'status-running' : 'status-stopped'}">
+            ${proj.running ? '● Running' : '○ Stopped'}
+          </span>
         </div>
+        <div class="project-actions" style="margin-top: 10px;">
+          <button class="btn btn-start" onclick="startProject('${proj.id}')" ${proj.running ? 'disabled' : ''}>
+            Start
+          </button>
+          <button class="btn btn-stop" onclick="stopProject('${proj.id}')" ${!proj.running ? 'disabled' : ''}>
+            Stop
+          </button>
+        </div>
+        <div id="msg-${proj.id}"></div>
       `).join('');
 
-      const grid = document.getElementById('projectsGrid');
-      grid.innerHTML = apps.map(proj => `
+      // Stateful apps (running/stopped, port, etc.) — safe to fully re-render every poll.
+      const statefulApps = apps.filter(p => !p.isTerminal);
+      document.getElementById('statefulProjectCards').innerHTML = statefulApps.map(proj => `
         <div class="project-card">
           <div class="project-header">
             <span class="project-name">${proj.name}</span>
@@ -388,8 +997,12 @@
             </span>
           </div>
           <div class="project-info">
-            <div><span class="port-label">Port:</span> ${proj.port}</div>
-            <div><span class="port-label">Directory:</span> ${proj.dir}</div>
+            ${proj.port ? `<div><span class="port-label">Port:</span> ${proj.port}</div>` : ''}
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span class="port-label">Directory:</span>
+              <span style="flex: 1; font-size: 0.85em; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${proj.dir}">${proj.dir}</span>
+              <button class="btn-browse-dir" onclick="openProjectFolderBrowser('${proj.id}')" title="Browse for project folder">📂</button>
+            </div>
           </div>
           <div class="project-actions">
             <button class="btn btn-start" onclick="startProject('${proj.id}')" ${proj.running ? 'disabled' : ''}>
@@ -398,15 +1011,67 @@
             <button class="btn btn-stop" onclick="stopProject('${proj.id}')" ${!proj.running ? 'disabled' : ''}>
               Stop
             </button>
-            ${proj.running ? `<a href="${proj.url}" target="_blank" class="btn btn-link">Open</a>` : ''}
+            ${(proj.running && proj.url) ? `<a href="${proj.url}" target="_blank" class="btn btn-link">Open</a>` : ''}
           </div>
           <div id="msg-${proj.id}"></div>
         </div>
       `).join('');
+
+      // Terminal apps (e.g. the coding agent picker) have no running/stopped state to poll —
+      // render once only. Re-rendering on every 2s tick would tear down and rebuild the
+      // <select>, force-closing it if the user has it open mid-pick.
+      if (!terminalCardsRendered) {
+        const terminalApps = apps.filter(p => p.isTerminal);
+        document.getElementById('terminalProjectCards').innerHTML = terminalApps.map(proj => {
+          const defaultAgent = agentClis.find(a => a.id === selectedAgentId) || agentClis[0] || {};
+          return `
+          <div class="project-card">
+            <div class="project-header">
+              <span class="project-name" id="agentCardName">${defaultAgent.name || proj.name}</span>
+              <select id="agentSelect-${proj.id}" onchange="selectedAgentId = this.value; updateAgentCardUI();" style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85em;">
+                ${agentClis.map(a => `<option value="${a.id}" ${a.id === selectedAgentId ? 'selected' : ''}>${a.name}</option>`).join('')}
+              </select>
+            </div>
+            <div class="project-info">
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span class="port-label">Directory:</span>
+                <span style="flex: 1; font-size: 0.85em; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${proj.dir}">${proj.dir}</span>
+                <button class="btn-browse-dir" onclick="openProjectFolderBrowser('${proj.id}')" title="Browse for project folder">📂</button>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+                <span class="port-label">Official Page:</span>
+                <a id="agentDownloadLink" href="${defaultAgent.url || '#'}" target="_blank" rel="noopener noreferrer" style="flex: 1; font-size: 0.85em; color: #667eea; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none;" title="${defaultAgent.url || ''}">${defaultAgent.url || ''}</a>
+                <a id="agentDownloadBtn" class="btn-browse-dir" href="${defaultAgent.url || '#'}" target="_blank" rel="noopener noreferrer" title="Open ${defaultAgent.name || ''} official page" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">⬇️</a>
+              </div>
+            </div>
+            <div style="margin-top: 4px; padding-top: 8px; border-top: 1px solid #eee;">
+              <div style="font-size: 0.72em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">🔗 MCP Servers</div>
+              <div id="mcpServerCheckboxes"></div>
+            </div>
+            <div class="project-actions">
+              <button class="btn btn-start" onclick="startProject('${proj.id}')">
+                Launch
+              </button>
+            </div>
+            <div id="msg-${proj.id}"></div>
+          </div>
+        `;
+        }).join('');
+        if (terminalApps.length > 0) {
+          terminalCardsRendered = true;
+          renderMcpCheckboxes();
+          refreshMcpStatus();
+        }
+      }
     }
 
     async function startProject(id) {
-      const res = await fetch(`/api/start/${id}`, { method: 'POST' });
+      const body = id === 'pi' ? { agentId: selectedAgentId } : undefined;
+      const res = await fetch(`/api/start/${id}`, {
+        method: 'POST',
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined
+      });
       const data = await res.json();
       showMessage(id, data.message, 'success');
       setTimeout(loadProjects, 500);
@@ -420,11 +1085,34 @@
     }
 
     async function saveConfig() {
+      // Guard against saving stale/blank fields before the initial config load finishes
+      await configReadyPromise;
       const config = {
         modelProvider: document.getElementById('modelProvider').value,
         modelName: document.getElementById('modelName').value,
         apiKey: document.getElementById('apiKey').value,
-        localModelEndpoint: document.getElementById('localModelEndpoint').value
+        localModelEndpoint: document.getElementById('localModelEndpoint').value,
+        contextWindow: document.getElementById('contextWindow').value,
+        reserveTokens: document.getElementById('reserveTokens').value,
+        keepRecentTokens: document.getElementById('keepRecentTokens').value,
+        ngl: document.getElementById('ngl').value,
+        nCpuMoe: document.getElementById('n-cpu-moe').value,
+        fa: document.getElementById('fa').value,
+        jinja: document.getElementById('jinja').value,
+        cnv: document.getElementById('cnv').value,
+        contextAmount: document.getElementById('contextAmount').value,
+        ctk: document.getElementById('ctk').value,
+        ctv: document.getElementById('ctv').value,
+        reasoningFormat: document.getElementById('reasoningFormat').value,
+        reasoningBudget: document.getElementById('reasoningBudget').value,
+        host: document.getElementById('host').value,
+        port: document.getElementById('port').value,
+        noMmap: document.getElementById('noMmap').value,
+        mlock: document.getElementById('mlock').value,
+        noRepack: document.getElementById('noRepack').value,
+        rpcEnabled: document.getElementById('rpcEnabled').value,
+        rpcAddress: document.getElementById('rpcAddress').value,
+        customFlags: document.getElementById('customFlags').value
       };
 
       const res = await fetch('/api/config', {
@@ -446,12 +1134,53 @@
 
     async function loadConfig() {
       const res = await fetch('/api/config');
-      const config = await res.json();
-      document.getElementById('modelProvider').value = config.modelProvider;
-      document.getElementById('modelName').value = config.modelName;
-      document.getElementById('localModelEndpoint').value = config.localModelEndpoint || 'http://localhost:8000/v1';
-      if (config.customFlags) {
-        document.getElementById('customFlags').value = config.customFlags;
+      const cfg = await res.json();
+      document.getElementById('modelProvider').value = cfg.modelProvider || 'local';
+      document.getElementById('modelName').value = cfg.modelName || '';
+      document.getElementById('localModelEndpoint').value = cfg.localModelEndpoint || 'http://localhost:8080/v1';
+      
+      // Load compaction settings
+      if (cfg.contextWindow) document.getElementById('contextWindow').value = cfg.contextWindow;
+      if (cfg.reserveTokens) document.getElementById('reserveTokens').value = cfg.reserveTokens;
+      if (cfg.keepRecentTokens) document.getElementById('keepRecentTokens').value = cfg.keepRecentTokens;
+      
+      // Load models directory (now persisted across restarts)
+      if (cfg.modelsDir) {
+        document.getElementById('modelsDir').value = cfg.modelsDir;
+      }
+      
+      if (cfg.ngl) document.getElementById('ngl').value = cfg.ngl;
+      if (cfg.nCpuMoe) document.getElementById('n-cpu-moe').value = cfg.nCpuMoe;
+      if (cfg.fa !== undefined) document.getElementById('fa').value = cfg.fa;
+      if (cfg.jinja !== undefined) document.getElementById('jinja').value = cfg.jinja;
+      if (cfg.cnv !== undefined) document.getElementById('cnv').value = cfg.cnv;
+      if (cfg.contextAmount) {
+        document.getElementById('contextAmount').value = cfg.contextAmount;
+        onContextAmountChange();
+      }
+      if (cfg.ctk) document.getElementById('ctk').value = cfg.ctk;
+      if (cfg.ctv) document.getElementById('ctv').value = cfg.ctv;
+      if (cfg.reasoningFormat) document.getElementById('reasoningFormat').value = cfg.reasoningFormat;
+      if (cfg.reasoningBudget) document.getElementById('reasoningBudget').value = cfg.reasoningBudget;
+      if (cfg.nPredict) document.getElementById('nPredict').value = cfg.nPredict;
+      if (cfg.temp) document.getElementById('temp').value = cfg.temp;
+      if (cfg.topP) document.getElementById('topP').value = cfg.topP;
+      if (cfg.topK) document.getElementById('topK').value = cfg.topK;
+      if (cfg.repeatPenalty) document.getElementById('repeatPenalty').value = cfg.repeatPenalty;
+      if (cfg.repeatLastN) document.getElementById('repeatLastN').value = cfg.repeatLastN;
+      if (cfg.minP) document.getElementById('minP').value = cfg.minP;
+      if (cfg.threads) document.getElementById('threads').value = cfg.threads;
+      if (cfg.threadsBatch) document.getElementById('threadsBatch').value = cfg.threadsBatch;
+      if (cfg.batchSize) document.getElementById('batchSize').value = cfg.batchSize;
+      if (cfg.host) document.getElementById('host').value = cfg.host;
+      if (cfg.port) document.getElementById('port').value = cfg.port;
+      if (cfg.noMmap !== undefined) document.getElementById('noMmap').value = cfg.noMmap;
+      if (cfg.mlock !== undefined) document.getElementById('mlock').value = cfg.mlock;
+      if (cfg.noRepack !== undefined) document.getElementById('noRepack').value = cfg.noRepack;
+      if (cfg.rpcEnabled !== undefined) document.getElementById('rpcEnabled').value = cfg.rpcEnabled;
+      if (cfg.rpcAddress) document.getElementById('rpcAddress').value = cfg.rpcAddress;
+      if (cfg.customFlags) {
+        document.getElementById('customFlags').value = cfg.customFlags;
       }
     }
 
@@ -476,34 +1205,601 @@
       const select = document.getElementById('modelSelect');
       const modelPath = select.value;
       const modelInfo = document.getElementById('modelInfo');
+      const resetBtn = document.getElementById('resetFlagsBtn');
 
       if (modelPath) {
         const fileName = modelPath.split('/').pop();
         modelInfo.textContent = `📦 ${fileName}`;
 
-        // Save to backend
-        fetch('/api/config', {
+        // Show the reset button when a model is selected
+        resetBtn.style.display = 'block';
+
+        // Save model selection and auto-load its flags
+        fetch('/api/set-model', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ selectedModel: modelPath })
+          body: JSON.stringify({ modelPath })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.flags && Object.keys(data.flags).length > 0) {
+            applyFlagsToForm(data.flags);
+            modelInfo.textContent = `📦 ${fileName} — flags loaded`;
+          } else {
+            modelInfo.textContent = `📦 ${fileName} — first time loading`;
+          }
         });
       } else {
         modelInfo.textContent = 'Select a model to see details';
+        resetBtn.style.display = 'none';
       }
     }
 
-    function saveCustomFlags() {
+    async function saveCustomFlags() {
+      await configReadyPromise;
       const flags = document.getElementById('customFlags').value;
       fetch('/api/config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customFlags: flags })
       });
+      buildPreview();
+    }
+
+    // Keep "Local Endpoint" in sync with --host/--port so there's only one source of truth
+    // for where the local llama.cpp server actually listens. Only auto-updates when the
+    // provider is "local" — cloud/ollama endpoints are independent and left alone.
+    function syncLocalEndpointFromHostPort() {
+      if (document.getElementById('modelProvider').value !== 'local') return;
+      const host = document.getElementById('host').value.trim() || '127.0.0.1';
+      const port = document.getElementById('port').value.trim() || '8080';
+      document.getElementById('localModelEndpoint').value = `http://${host}:${port}/v1`;
+    }
+
+    // Called whenever any individual flag changes — auto-saves to the currently loaded model
+    function onFlagChange(flag) {
+      if (flag === 'host' || flag === 'port') syncLocalEndpointFromHostPort();
+      buildPreview();
+      saveFlagsForCurrentModel();
+    }
+
+    async function saveFlagsForCurrentModel() {
+      await configReadyPromise;
+      const config = buildAllFlags();
+      fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config)
+      });
+    }
+
+    const FLAG_KEYS = [
+      'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
+      'contextAmount', 'ctk', 'ctv',
+      'reasoningFormat', 'reasoningBudget', 'nPredict',
+      'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP',
+      'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
+      'host', 'port', 'rpcEnabled', 'rpcAddress', 'customFlags'
+    ];
+
+    // Apply saved flags to the form (called when model is selected)
+    function applyFlagsToForm(flags) {
+      FLAG_KEYS.forEach(key => {
+        const el = document.getElementById(key === 'nCpuMoe' ? 'n-cpu-moe' : key);
+        if (el && flags[key] !== undefined) el.value = flags[key];
+      });
+      buildPreview();
+      onContextAmountChange();
+    }
+
+    function buildAllFlags() {
+      return {
+        selectedModel: document.getElementById('modelSelect').value || null,
+        ngl: document.getElementById('ngl').value,
+        nCpuMoe: document.getElementById('n-cpu-moe').value,
+        fa: document.getElementById('fa').value,
+        jinja: document.getElementById('jinja').value,
+        cnv: document.getElementById('cnv').value,
+        contextAmount: document.getElementById('contextAmount').value,
+        ctk: document.getElementById('ctk').value,
+        ctv: document.getElementById('ctv').value,
+        reasoningFormat: document.getElementById('reasoningFormat').value,
+        reasoningBudget: document.getElementById('reasoningBudget').value,
+        nPredict: document.getElementById('nPredict').value,
+        temp: document.getElementById('temp').value,
+        topP: document.getElementById('topP').value,
+        topK: document.getElementById('topK').value,
+        repeatPenalty: document.getElementById('repeatPenalty').value,
+        repeatLastN: document.getElementById('repeatLastN').value,
+        minP: document.getElementById('minP').value,
+        threads: document.getElementById('threads').value,
+        threadsBatch: document.getElementById('threadsBatch').value,
+        batchSize: document.getElementById('batchSize').value,
+        noMmap: document.getElementById('noMmap').value,
+        mlock: document.getElementById('mlock').value,
+        noRepack: document.getElementById('noRepack').value,
+        host: document.getElementById('host').value,
+        port: document.getElementById('port').value,
+        rpcEnabled: document.getElementById('rpcEnabled').value,
+        rpcAddress: document.getElementById('rpcAddress').value,
+        customFlags: document.getElementById('customFlags').value,
+        // Kept in sync with host/port by syncLocalEndpointFromHostPort() — included here so
+        // the per-flag-change autosave persists it too, not just the general Save button.
+        localModelEndpoint: document.getElementById('localModelEndpoint').value
+      };
+    }
+
+    // Live preview of flags that will be passed to llama.cpp
+    function buildPreview() {
+      const parts = [];
+      const ngl = document.getElementById('ngl').value;
+      if (ngl && parseInt(ngl) !== 99) parts.push(`-ngl ${ngl}`);
+
+      const nCpuMoe = document.getElementById('n-cpu-moe').value;
+      if (nCpuMoe && parseInt(nCpuMoe) !== 40) parts.push(`--n-cpu-moe ${nCpuMoe}`);
+
+      const fa = document.getElementById('fa').value;
+      if (fa !== '1') parts.push(`-fa ${fa}`);
+
+      const jinja = document.getElementById('jinja').value;
+      if (jinja !== '1') parts.push(`--jinja ${jinja}`);
+
+      const cnv = document.getElementById('cnv').value;
+      if (cnv !== '1') parts.push(`-cnv ${cnv}`);
+
+      const ctk = document.getElementById('ctk').value;
+      if (ctk !== 'q8_0') parts.push(`-ctk ${ctk}`);
+
+      const ctv = document.getElementById('ctv').value;
+      if (ctv !== 'q8_0') parts.push(`-ctv ${ctv}`);
+
+      const rf = document.getElementById('reasoningFormat').value;
+      if (rf !== 'deepseek') parts.push(`--reasoning-format ${rf}`);
+
+      const rb = document.getElementById('reasoningBudget').value;
+      if (rb !== '0') parts.push(`--reasoning-budget ${rb}`);
+
+      const np = document.getElementById('nPredict').value;
+      if (np && parseInt(np) > 0) parts.push(`--n-predict ${np}`);
+
+      // Sampling flags
+      const temp = document.getElementById('temp').value;
+      if (temp && parseFloat(temp) !== 0.8) parts.push(`--temp ${temp}`);
+
+      const topP = document.getElementById('topP').value;
+      if (topP && parseFloat(topP) !== 0.95) parts.push(`--top-p ${topP}`);
+
+      const topK = document.getElementById('topK').value;
+      if (topK && parseInt(topK) !== 40) parts.push(`--top-k ${topK}`);
+
+      const rp = document.getElementById('repeatPenalty').value;
+      if (rp && parseFloat(rp) !== 1.1) parts.push(`--repeat-penalty ${rp}`);
+
+      const rln = document.getElementById('repeatLastN').value;
+      if (rln && parseInt(rln) !== 64) parts.push(`--repeat-last-n ${rln}`);
+
+      const minp = document.getElementById('minP').value;
+      if (minp && parseFloat(minp) !== 0.05) parts.push(`--min-p ${minp}`);
+
+      // Performance flags
+      const threads = document.getElementById('threads').value;
+      if (threads && parseInt(threads) > 0) parts.push(`--threads ${threads}`);
+
+      const tb = document.getElementById('threadsBatch').value;
+      if (tb && parseInt(tb) > 0) parts.push(`--threads-batch ${tb}`);
+
+      const bs = document.getElementById('batchSize').value;
+      if (bs && parseInt(bs) !== 512) parts.push(`--batch-size ${bs}`);
+
+      const noMmap = document.getElementById('noMmap').value;
+      if (noMmap === '1') parts.push('--no-mmap');
+
+      const mlock = document.getElementById('mlock').value;
+      if (mlock === '1') parts.push('--mlock');
+
+      const noRepack = document.getElementById('noRepack').value;
+      if (noRepack === '1') parts.push('-nr');
+
+      const host = document.getElementById('host').value;
+      if (host) parts.push(`--host ${host}`);
+
+      const port = document.getElementById('port').value;
+      if (port) parts.push(`--port ${port}`);
+
+      const rpcEnabled = document.getElementById('rpcEnabled').value;
+      const rpcAddress = document.getElementById('rpcAddress').value.trim();
+      if (rpcEnabled === '1' && rpcAddress) parts.push(`--rpc ${rpcAddress}`);
+
+      const extra = document.getElementById('customFlags').value.trim();
+      if (extra) parts.push(extra);
+
+      document.getElementById('previewFlags').textContent =
+        parts.length > 0 ? 'Flags: ' + parts.join(' ') : '';
+    }
+
+    function parseContextAmount(raw) {
+      const val = (raw || '').trim().toLowerCase();
+      if (!val) return null;
+      // Match patterns like 4k, 400k, 2m, 4096
+      const match = val.match(/^([\d.]+)(k|m)?$/);
+      if (!match) return null;
+      const num = parseFloat(match[1]);
+      const unit = match[2];
+      if (isNaN(num) || num <= 0) return null;
+      let result;
+      if (unit === 'k') {
+        result = Math.round(num * 1000);
+      } else if (unit === 'm') {
+        result = Math.round(num * 1000000);
+      } else {
+        result = Math.round(num);
+      }
+      return result;
+    }
+
+    function onContextAmountChange() {
+      const raw = document.getElementById('contextAmount').value;
+      const preview = document.getElementById('contextPreview');
+      const parsed = parseContextAmount(raw);
+      if (parsed !== null) {
+        preview.textContent = `→ Will use: -c ${parsed.toLocaleString()}`;
+      } else {
+        preview.textContent = '';
+      }
+      saveFlagsForCurrentModel();
+    }
+
+    // Reset flags button — clears saved flags and resets form to defaults
+    document.getElementById('resetFlagsBtn').addEventListener('click', async function() {
+      const select = document.getElementById('modelSelect');
+      const modelPath = select.value;
+      if (!modelPath) return;
+
+      if (!confirm('Reset all flags for this model to defaults and remove saved flags?')) return;
+
+      // Clear saved flags on the server
+      await fetch(`/api/model-flags/${encodeURIComponent(modelPath)}`, {
+        method: 'DELETE'
+      });
+
+      // Reset form to defaults
+      applyDefaults();
+
+      const modelInfo = document.getElementById('modelInfo');
+      const fileName = modelPath.split('/').pop();
+      modelInfo.textContent = `📦 ${fileName} — flags reset`;
+      setTimeout(() => {
+        modelInfo.textContent = `📦 ${fileName}`;
+      }, 2000);
+    });
+
+    // Reset all form fields to their default values
+    function applyDefaults() {
+      document.getElementById('ngl').value = '99';
+      document.getElementById('n-cpu-moe').value = '40';
+      document.getElementById('fa').value = '1';
+      document.getElementById('jinja').value = '1';
+      document.getElementById('cnv').value = '1';
+      document.getElementById('ctk').value = 'q8_0';
+      document.getElementById('ctv').value = 'q8_0';
+      document.getElementById('reasoningFormat').value = 'deepseek';
+      document.getElementById('reasoningBudget').value = '0';
+      document.getElementById('nPredict').value = '';
+      document.getElementById('temp').value = '0.8';
+      document.getElementById('topP').value = '0.95';
+      document.getElementById('topK').value = '40';
+      document.getElementById('repeatPenalty').value = '1.1';
+      document.getElementById('repeatLastN').value = '64';
+      document.getElementById('minP').value = '0.05';
+      document.getElementById('threads').value = '0';
+      document.getElementById('threadsBatch').value = '0';
+      document.getElementById('batchSize').value = '512';
+      document.getElementById('host').value = '';
+      document.getElementById('port').value = '';
+      document.getElementById('contextAmount').value = '';
+      document.getElementById('customFlags').value = '';
+      buildPreview();
+      onContextAmountChange();
+    }
+
+    // ADDED: Model Folder Browser
+    // Browses the server's filesystem via /api/browse, so selected folders
+    // have real absolute paths that llama.cpp can actually load.
+    let browsePath = null; // Will be set from /api/home
+    let currentBrowseTarget = null; // null = model folder, or project id like 'pithagoras'
+
+    // Fetch home directory from server on startup
+    async function initBrowsePath() {
+      try {
+        const res = await fetch('/api/home');
+        const data = await res.json();
+        browsePath = data.homeDir;
+      } catch (e) {
+        console.error('Failed to get home directory:', e);
+        browsePath = '/home';
+      }
+    }
+    initBrowsePath();
+
+    async function openFolderBrowser(startPath) {
+      currentBrowseTarget = null;
+      browsePath = startPath || browsePath;
+      document.getElementById('folderBrowserOverlay').style.display = 'flex';
+      document.getElementById('folderBrowserHint').textContent =
+        'Subfolders will also be scanned for .gguf files';
+      await loadFolder(browsePath);
+    }
+
+    // Browse folder for a specific project (pithagoras, understory, agentbox, pi)
+    async function openProjectFolderBrowser(projectId) {
+      currentBrowseTarget = projectId;
+      if (!browsePath) await initBrowsePath();
+      document.getElementById('folderBrowserOverlay').style.display = 'flex';
+      document.getElementById('folderBrowserHint').textContent =
+        'Select the project folder, then click "Set Project Folder"';
+      document.getElementById('folderBrowserSelect').textContent = 'Set Project Folder';
+      await loadFolder(browsePath);
+    }
+
+    function closeFolderBrowser() {
+      document.getElementById('folderBrowserOverlay').style.display = 'none';
+      document.getElementById('folderBrowserSelect').textContent = 'Select This Folder';
+    }
+
+    async function loadFolder(dirPath) {
+      const res = await fetch('/api/browse?path=' + encodeURIComponent(dirPath));
+      const data = await res.json();
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+      browsePath = data.path;
+      document.getElementById('folderBrowserPath').textContent = data.path;
+
+      const list = document.getElementById('folderBrowserList');
+      list.innerHTML = '';
+
+      if (data.parent && data.parent !== data.path) {
+        const up = document.createElement('div');
+        up.className = 'folder-item';
+        up.textContent = '⬆ ..';
+        up.onclick = () => loadFolder(data.parent);
+        list.appendChild(up);
+      }
+
+      data.dirs.forEach(name => {
+        const item = document.createElement('div');
+        item.className = 'folder-item';
+        item.textContent = '📁 ' + name;
+        item.onclick = () => loadFolder(data.path + '/' + name);
+        list.appendChild(item);
+      });
+
+      const hint = document.getElementById('folderBrowserHint');
+      if (currentBrowseTarget) {
+        // For project folders, just show the path
+        hint.textContent = 'Select the project folder, then click "Set Project Folder"';
+      } else {
+        hint.textContent = data.ggufCount > 0
+          ? '✅ ' + data.ggufCount + ' .gguf file(s) in this folder'
+          : 'Subfolders will also be scanned for .gguf files';
+      }
+    }
+
+    document.getElementById('addModelFolderBtn').addEventListener('click', function() {
+      openFolderBrowser();
+    });
+
+    document.getElementById('folderBrowserSelect').addEventListener('click', async function() {
+      if (currentBrowseTarget) {
+        // Setting project directory
+        const res = await fetch('/api/set-project-dir', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId: currentBrowseTarget, dir: browsePath })
+        });
+        const data = await res.json();
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+        closeFolderBrowser();
+        // Reload projects to show updated directory
+        await loadProjects();
+      } else {
+        // Adding model folder
+        const res = await fetch('/api/add-model-folder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folder: browsePath })
+        });
+        const data = await res.json();
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+        closeFolderBrowser();
+        document.getElementById('modelScanStatus').textContent =
+          '✅ Found ' + data.count + ' model(s) in folder';
+        loadModels();
+      }
+    });
+
+    document.getElementById('folderBrowserCancel').addEventListener('click', closeFolderBrowser);
+    document.getElementById('folderBrowserOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeFolderBrowser();
+    });
+
+    // Set models directory
+    document.getElementById('setModelsDirBtn').addEventListener('click', async function() {
+      const dir = document.getElementById('modelsDir').value.trim();
+      if (!dir) {
+        alert('Please enter a models directory path');
+        return;
+      }
+      
+      // Save via config endpoint (persists to disk)
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modelsDir: dir })
+      });
+      const data = await res.json();
+      
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+      
+      document.getElementById('modelScanStatus').textContent = '✅ Using: ' + dir;
+      loadModels();
+    });
+
+    // One-time CPU core detection, shown as a hint only — never overrides a value you set.
+    async function loadSystemInfo() {
+      try {
+        const res = await fetch('/api/system-info');
+        const info = await res.json();
+        if (info.cpuCores) {
+          const hint = `${info.cpuCores} logical cores detected`;
+          document.getElementById('threadsHint').textContent = hint;
+          document.getElementById('threadsBatchHint').textContent = hint;
+        }
+      } catch (e) {
+        // Non-critical — hint just stays blank
+      }
+    }
+
+    // Coding agent CLI picker for the terminal card — fetched once, selection kept in a
+    // module-level var so it survives the 2s loadProjects re-render (which rebuilds the
+    // <select> from scratch each time).
+    let agentClis = [];
+    let terminalCardsRendered = false;
+
+    // Keeps the card name and the download/webpage button in sync with whichever CLI is
+    // currently picked in the dropdown — same idea as the llama.cpp card deriving its name
+    // from the resolved directory instead of a hardcoded label.
+    function updateAgentCardUI() {
+      const agent = agentClis.find(a => a.id === selectedAgentId);
+      if (!agent) return;
+      const nameEl = document.getElementById('agentCardName');
+      if (nameEl) nameEl.textContent = agent.name;
+      const link = document.getElementById('agentDownloadBtn');
+      if (link) {
+        link.href = agent.url;
+        link.title = `Open ${agent.name} official page`;
+      }
+      const linkText = document.getElementById('agentDownloadLink');
+      if (linkText) {
+        linkText.href = agent.url;
+        linkText.title = agent.url;
+        linkText.textContent = agent.url;
+      }
+      refreshMcpStatus();
+    }
+
+    // MCP servers this stack exposes (AgentBox, Understory) — fetched once. Checkbox
+    // state is per-selected-CLI, refreshed from the client's own config file whenever
+    // the dropdown changes.
+    let mcpServers = [];
+    async function loadMcpServers() {
+      try {
+        const res = await fetch('/api/mcp-servers');
+        mcpServers = await res.json();
+      } catch (e) {
+        // Non-critical — section just stays empty
+      }
+    }
+
+    function renderMcpCheckboxes() {
+      const container = document.getElementById('mcpServerCheckboxes');
+      if (!container) return;
+      const checkboxRow = (server) => `
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; margin-bottom: 4px; cursor: pointer; white-space: nowrap;">
+          <input type="checkbox" id="mcpCheckbox-${server.id}" style="flex-shrink: 0;" onchange="toggleMcpServer('${server.id}', this.checked)">
+          <span style="overflow: hidden; text-overflow: ellipsis;" title="${server.name}">${server.name}</span>
+          <span id="mcpStatus-${server.id}" style="font-size: 0.75em; color: #999; flex-shrink: 0;"></span>
+        </label>
+      `;
+      // Remote (standing-service) servers on the left, local/stdio (client-launched,
+      // e.g. Chrome DevTools, WebFetch) servers on the right — they behave differently
+      // enough (need-running-service vs. launched-on-demand) to warrant separating.
+      const remoteServers = mcpServers.filter(s => s.kind !== 'local');
+      const localServers = mcpServers.filter(s => s.kind === 'local');
+      container.innerHTML = `
+        <div style="display: flex; gap: 16px;">
+          <div style="flex: 1;">${remoteServers.map(checkboxRow).join('')}</div>
+          <div style="flex: 1;">${localServers.map(checkboxRow).join('')}</div>
+        </div>
+      `;
+    }
+
+    // Pulls current registration state for the selected CLI from its own config file
+    // (read-only) and reflects it in the checkboxes — including disabling ones that
+    // client can't use (e.g. Codex CLI can't take AgentBox's SSE transport) or that
+    // aren't supported for this client at all.
+    async function refreshMcpStatus() {
+      if (mcpServers.length === 0) return;
+      let statuses;
+      try {
+        const res = await fetch(`/api/mcp-status?agentId=${encodeURIComponent(selectedAgentId)}`);
+        statuses = (await res.json()).servers;
+      } catch (e) {
+        return;
+      }
+      for (const s of statuses) {
+        const checkbox = document.getElementById(`mcpCheckbox-${s.serverId}`);
+        const statusEl = document.getElementById(`mcpStatus-${s.serverId}`);
+        if (!checkbox) continue;
+        checkbox.checked = s.registered;
+        checkbox.disabled = !s.compatible;
+        // Keep these short — long status text wraps inside the narrow column and
+        // stretches rows unevenly. The full reason lives in the tooltip instead.
+        if (!s.supported) {
+          statusEl.textContent = 'n/a';
+          checkbox.title = `MCP registration isn't supported for this CLI yet`;
+        } else if (!s.compatible) {
+          statusEl.textContent = 'n/a';
+          checkbox.title = `This CLI doesn't support this server's transport`;
+        } else {
+          statusEl.textContent = '';
+          checkbox.title = '';
+        }
+      }
+    }
+
+    async function toggleMcpServer(serverId, checked) {
+      const checkbox = document.getElementById(`mcpCheckbox-${serverId}`);
+      const statusEl = document.getElementById(`mcpStatus-${serverId}`);
+      try {
+        const res = await fetch('/api/mcp-toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agentId: selectedAgentId, serverId, enabled: checked }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update');
+        statusEl.textContent = checked ? 'registered' : '';
+        setTimeout(() => { if (statusEl.textContent === 'registered') statusEl.textContent = ''; }, 2000);
+      } catch (e) {
+        checkbox.checked = !checked; // revert on failure
+        statusEl.textContent = e.message;
+      }
+    }
+    let selectedAgentId = 'pi';
+    async function loadAgentClis() {
+      try {
+        const res = await fetch('/api/agent-clis');
+        agentClis = await res.json();
+      } catch (e) {
+        // Non-critical — dropdown just stays empty
+      }
     }
 
     loadModels();
-    loadConfig();
-    loadProjects();
+    const configReadyPromise = loadConfig();
+    Promise.all([loadAgentClis(), loadMcpServers()]).then(loadProjects);
+    loadSystemInfo();
     setInterval(loadProjects, 2000);
   </script>
 </body>

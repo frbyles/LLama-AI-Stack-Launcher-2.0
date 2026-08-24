@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Per-user config files (contain absolute paths)
+launcherConfig.json
+projectDirs.json
+modelFlags.json
+extraModelDirs.json
+
+# Environment overrides
+.env
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.aider*
