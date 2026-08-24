@@ -1,3 +1,5 @@
+Im a Codacus fanboy and love his youtube videos and projects. but im lazy so i got Claude to build me a launncher.
+
 # 🚀 Project Launcher
 
 A web-based launcher for managing your local AI development stack. Control Pithagoras, Understory, AgentBox, and llama.cpp from one dashboard with custom model selection and flag configuration.
