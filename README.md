@@ -100,18 +100,91 @@ Open browser to: **http://localhost:5000**
 
 ### Projects (must be installed separately)
 
+The launcher runs each of these as a bare `npm`/`pnpm` process (not via Docker,
+even where the project's own README recommends Docker), and it does **not**
+read any `.env` file inside these project folders — see "Env vars for
+sub-projects" below before you expect any of them to actually work.
+
 1. **Pithagoras** - https://github.com/thecodacus/pithagoras
    - Requires: npm, Node.js 18+
+   - Clone to `~/pithagoras` (or set `PROJECT_DIR_PITHAGORAS`)
+   - Run `npm install` then **`npm run build`** once — the launcher starts it
+     with `npm run dev:server`, which only serves the web UI if `web/dist`
+     already exists (it's built lazily nowhere else)
+   - Needs `WORKSPACE_ROOT` and `BIN_DIR` set as real env vars (not
+     `WORKSPACES_DIR`, which is the name used by `.env.example` and
+     `docker-compose.yml` — the app code itself reads `WORKSPACE_ROOT`;
+     that mismatch only doesn't matter for the Docker deployment, where the
+     compose file's volume mount happens to land on the same default path)
 
 2. **Understory** - https://github.com/thecodacus/understory
    - Requires: pnpm (`npm install -g pnpm`), Node.js 20+
+   - Clone to `~/understory` (or set `PROJECT_DIR_UNDERSTORY`)
+   - Run `pnpm install` then **`pnpm build`** once — the launcher starts it
+     with `pnpm dev`, and `packages/server` imports `@understory/core`'s
+     compiled `dist/`, which only exists after a build
 
 3. **AgentBox** - https://github.com/thecodacus/agentbox
    - Requires: Docker, Node.js 20+
-   - Build sandbox images before starting
+   - Clone to `~/agentbox` (the launcher expects the Next.js app specifically
+     at `~/agentbox/app`)
+   - Build sandbox images before starting: `docker build -t agentbox-sandbox
+     ./sandbox` and `docker build -t agentbox-sandbox-shell ./sandbox-shell`,
+     then `docker compose up -d` for the manager
+   - `cd app && npm install` — as of writing, the repo's own README says to
+     `cp .env.example .env.local`, but that example file doesn't exist in the
+     repo; create `app/.env.local` by hand with at least `OPENROUTER_API_KEY`
+   - As of writing, `lib/theme.ts` in the repo contains JSX but has a `.ts`
+     extension, which Next.js/Turbopack refuses to parse (`Expected '>', got
+     'ident'`). Rename it to `lib/theme.tsx` (imports are extensionless, so
+     nothing else needs to change) until upstream fixes it.
 
 4. **Llama.cpp** - https://github.com/thecodacus/llama.cpp
    - Built C++ binary (no setup needed if compiled)
+
+### Env vars for sub-projects
+
+Pithagoras and Understory have no `dotenv` loader of their own — in their
+intended Docker deployment, `docker-compose.yml` / `docker compose` injects
+env vars directly, so there's nothing parsing a `.env` file. The launcher
+spawns these as plain child processes and only forwards its own
+`process.env`, so **any env var these projects need has to be set in the
+launcher's own `.env`** (this file, in the launcher's root directory — not
+`pithagoras/.env` or `understory/.env`, which are silently ignored when run
+this way). The one exception is AgentBox: it's a Next.js app, and Next.js
+auto-loads `app/.env.local` itself, so that file works as documented.
+
+Example launcher `.env` additions:
+```env
+# Pithagoras
+PORTAL_PASSWORD=change-me
+PORTAL_SECRET=            # openssl rand -hex 32
+WORKSPACE_ROOT=C:\Users\you\pi-workspaces
+BIN_DIR=C:\Users\you\pithagoras\.bin
+OPENROUTER_API_KEY=
+
+# Understory
+BUNDLE_ROOT=C:\Users\you\understory\sample-bundle
+LLM_API_BASE_URL=http://127.0.0.1:8080/v1
+LLM_API_FORMAT=openai
+LLM_MODEL=
+```
+Do **not** set a bare `PORT` here — Understory defaults to 3800 on its own,
+but a global `PORT` env var would also reach Pithagoras and AgentBox's
+Next.js dev server and make them try to bind the wrong port.
+
+### Native module install scripts (npm 12+)
+
+`better-sqlite3` (used by both Pithagoras and AgentBox) and `esbuild` need
+their install scripts to run to build/fetch a native binary. npm 12's
+script-allowlist feature blocks these by default. If `npm install` warns
+about blocked install scripts, run:
+```bash
+npm install-scripts approve better-sqlite3 esbuild
+npm install    # or: npm rebuild better-sqlite3
+```
+Otherwise the app will crash at runtime trying to `require()` a
+`better-sqlite3` binding that was never compiled.
 
 ## Configuration
 
