@@ -795,7 +795,7 @@ app.get('/api/browse', (req, res) => {
   const dirPath = req.query.path || homeDir;
   try {
     const dirs = readdirSync(dirPath, { withFileTypes: true })
-      .filter(e => e.isDirectory() && !e.name.startsWith('.'))
+      .filter(e => e.isDirectory())
       .map(e => e.name)
       .sort((a, b) => a.localeCompare(b));
     const ggufCount = readdirSync(dirPath, { withFileTypes: true })
