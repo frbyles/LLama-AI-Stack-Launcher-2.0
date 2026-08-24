@@ -40,32 +40,78 @@ The web UI will guide you through setting up your models folder and project dire
 
 ## Setup
 
-### Prerequisites
+### Windows 11
 
-- **Node.js 18+** - https://nodejs.org/
-- **npm** - Comes with Node.js
+**Prerequisites:**
+1. [Node.js LTS](https://nodejs.org/) - Download and install
+
+**Steps:**
+```bash
+# Navigate to launcher directory
+cd path\to\launcher
+
+# Install dependencies
+npm install
+
+# Start launcher
+npm start
+```
+
+Open browser to: **http://localhost:5000**
 
 ### Linux (Ubuntu/Debian)
 
+**Prerequisites:**
 ```bash
 # Install Node.js
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-# Or use nvm
+# Or use nvm (Node Version Manager)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 nvm install 22
 ```
 
-### Windows 11
+**Steps:**
+```bash
+# Navigate to launcher directory
+cd path/to/launcher
 
-1. Download and install [Node.js LTS](https://nodejs.org/)
-2. Open Terminal and run:
-   ```cmd
-   cd path\to\launcher
-   npm install
-   npm start
-   ```
+# Run the setup script (installs dependencies, walks through config)
+./setup.sh
+
+# Start launcher
+npm start
+```
+
+Open browser to: **http://localhost:5000**
+
+## Dependencies
+
+### Required
+- **Node.js 18+** - https://nodejs.org/
+- **npm** - Comes with Node.js
+
+### Node Packages (auto-installed)
+- **Express.js** - Web framework
+  - https://www.npmjs.com/package/express
+- **Child Process** - For spawning projects
+  - Built into Node.js
+
+### Projects (must be installed separately)
+
+1. **Pithagoras** - https://github.com/thecodacus/pithagoras
+   - Requires: npm, Node.js 18+
+
+2. **Understory** - https://github.com/thecodacus/understory
+   - Requires: pnpm (`npm install -g pnpm`), Node.js 20+
+
+3. **AgentBox** - https://github.com/thecodacus/agentbox
+   - Requires: Docker, Node.js 20+
+   - Build sandbox images before starting
+
+4. **Llama.cpp** - https://github.com/thecodacus/llama.cpp
+   - Built C++ binary (no setup needed if compiled)
 
 ## Configuration
 
