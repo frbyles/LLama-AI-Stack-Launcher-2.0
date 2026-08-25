@@ -1179,8 +1179,8 @@
       if (cfg.threads) document.getElementById('threads').value = cfg.threads;
       if (cfg.threadsBatch) document.getElementById('threadsBatch').value = cfg.threadsBatch;
       if (cfg.batchSize) document.getElementById('batchSize').value = cfg.batchSize;
-      if (cfg.host) document.getElementById('host').value = cfg.host;
-      if (cfg.port) document.getElementById('port').value = cfg.port;
+      document.getElementById('host').value = cfg.host || '127.0.0.1';
+      document.getElementById('port').value = cfg.port || '8080';
       if (cfg.noMmap !== undefined) document.getElementById('noMmap').value = cfg.noMmap;
       if (cfg.mlock !== undefined) document.getElementById('mlock').value = cfg.mlock;
       if (cfg.noRepack !== undefined) document.getElementById('noRepack').value = cfg.noRepack;
@@ -1501,8 +1501,8 @@
       document.getElementById('threads').value = '0';
       document.getElementById('threadsBatch').value = '0';
       document.getElementById('batchSize').value = '512';
-      document.getElementById('host').value = '';
-      document.getElementById('port').value = '';
+      document.getElementById('host').value = '127.0.0.1';
+      document.getElementById('port').value = '8080';
       document.getElementById('contextAmount').value = '';
       document.getElementById('customFlags').value = '';
       buildPreview();
