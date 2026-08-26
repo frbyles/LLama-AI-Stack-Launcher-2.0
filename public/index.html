@@ -13,14 +13,107 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 40px),
+        linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       padding: 10px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Decorative background layer — purely visual, sits behind the app UI and
+       never intercepts clicks (pointer-events: none). Fixed so it doesn't move
+       with page scroll. */
+    .bg-decor {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-decor .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      will-change: transform;
+    }
+
+    .bg-decor .blob-1 {
+      width: 480px;
+      height: 480px;
+      top: -140px;
+      left: -120px;
+      background: radial-gradient(circle at 30% 30%, #a78bfa, #667eea 70%);
+      opacity: 0.55;
+      animation: bgDrift1 22s ease-in-out infinite;
+    }
+
+    .bg-decor .blob-2 {
+      width: 560px;
+      height: 560px;
+      bottom: -180px;
+      right: -160px;
+      background: radial-gradient(circle at 40% 40%, #f472b6, #764ba2 70%);
+      opacity: 0.5;
+      animation: bgDrift2 26s ease-in-out infinite;
+    }
+
+    .bg-decor .blob-3 {
+      width: 360px;
+      height: 360px;
+      top: 45%;
+      left: 55%;
+      background: radial-gradient(circle at 50% 50%, #60a5fa, #667eea 70%);
+      opacity: 0.32;
+      animation: bgDrift3 30s ease-in-out infinite;
+    }
+
+    .bg-decor .ring {
+      position: absolute;
+      top: 8%;
+      right: 5%;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: conic-gradient(from 180deg, #60a5fa, #f472b6, #a78bfa, #60a5fa);
+      -webkit-mask: radial-gradient(circle, transparent 54%, black 56%);
+      mask: radial-gradient(circle, transparent 54%, black 56%);
+      opacity: 0.6;
+      animation: bgRingSpin 50s linear infinite, bgRingDrift 18s ease-in-out infinite;
+    }
+
+    @keyframes bgDrift1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(40px, 30px) scale(1.08); }
+    }
+
+    @keyframes bgDrift2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-30px, -40px) scale(1.05); }
+    }
+
+    @keyframes bgDrift3 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-25px, 25px) scale(0.95); }
+    }
+
+    @keyframes bgRingSpin {
+      from { rotate: 0deg; }
+      to { rotate: 360deg; }
+    }
+
+    @keyframes bgRingDrift {
+      0%, 100% { margin-top: 0; }
+      50% { margin-top: 18px; }
     }
 
     .container {
       max-width: 1400px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     .header {
@@ -89,19 +182,6 @@
       outline: none;
       border-color: #667eea;
       box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .engine-section {
-      margin-bottom: 15px;
-    }
-
-    .engine-title {
-      color: #667eea;
-      font-size: 0.75em;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      letter-spacing: 1px;
     }
 
     .projects-title {
@@ -473,6 +553,12 @@
   </style>
 </head>
 <body>
+  <div class="bg-decor">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="ring"></div>
+  </div>
   <div class="container">
     <div class="header">
       <h1>🚀 Project Launcher</h1>
@@ -493,18 +579,6 @@
             <option value="ollama">Ollama</option>
             <option value="deepseek">DeepSeek</option>
           </select>
-        </div>
-        <div class="config-field">
-          <label for="modelName" title="A friendly name to identify this model in API requests (e.g., fable5). Not used by llama.cpp itself.">
-            Model Name
-          </label>
-          <input type="text" id="modelName" placeholder="e.g., fable5">
-        </div>
-        <div class="config-field">
-          <label for="localModelEndpoint" title="The base URL of the OpenAI-compatible chat completions endpoint. Llama.cpp exposes this at /v1 by default.">
-            Local Endpoint
-          </label>
-          <input type="text" id="localModelEndpoint" placeholder="http://localhost:8080/v1">
         </div>
         <div class="config-field">
           <label for="apiKey" title="API key for cloud providers (Anthropic, OpenAI, etc.). Leave blank to use environment variables (ANTHROPIC_API_KEY, OPENAI_API_KEY, etc.).">
@@ -533,25 +607,10 @@
           <input type="number" id="keepRecentTokens" value="20000" placeholder="20000" style="flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85em;">
           <p style="font-size: 0.7em; color: #888; margin-top: 3px;">20k default</p>
         </div>
-        <div class="config-field">
-          <label for="modelsDir" title="Path to your GGUF models directory. Leave blank to manually add model folders below.">
-            Models Directory
-          </label>
-          <div style="display: flex; gap: 6px;">
-            <input type="text" id="modelsDir" placeholder="/path/to/models" style="flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85em;">
-            <button id="setModelsDirBtn" class="btn-set-dir" style="padding: 6px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.85em; white-space: nowrap;">Set</button>
-          </div>
-        </div>
         <button class="save-config" onclick="saveConfig()">Save</button>
       </div>
       <div id="configMessage"></div>
-    </div>
-
-    <div class="engine-section">
-      <div class="engine-title">🔧 LLM Engine</div>
-
-      <div class="config-panel">
-        <h3 style="margin-bottom: 15px; color: #333;">Select Model & Flags</h3>
+      <div style="margin-top: 18px; border-top: 1px solid #eee; padding-top: 18px;">
         <div class="config-row">
           <div class="config-field" style="flex: 1;">
             <label for="modelSelect" title="Pick a GGUF model file. The launcher will auto-load any previously saved flags for this model.">
@@ -967,12 +1026,18 @@
       const engine = projects.filter(p => p.isEngine);
       const apps = projects.filter(p => !p.isEngine);
 
+      const llamacppProj = engine.find(p => p.id === 'llamacpp');
+      llamacppRunning = llamacppProj ? llamacppProj.running : false;
+
       const engineGrid = document.getElementById('engineControls');
       engineGrid.innerHTML = engine.map(proj => `
         <div class="project-header">
           <span class="project-name">${proj.name}</span>
-          <span class="status-badge ${proj.running ? 'status-running' : 'status-stopped'}">
-            ${proj.running ? '● Running' : '○ Stopped'}
+          <span style="display: flex; align-items: center; gap: 8px;">
+            ${proj.id === 'llamacpp' ? `<span id="vramStat" style="font-size: 0.85em; color: #667eea; font-family: monospace; display: none;"></span>` : ''}
+            <span class="status-badge ${proj.running ? 'status-running' : 'status-stopped'}">
+              ${proj.running ? '● Running' : '○ Stopped'}
+            </span>
           </span>
         </div>
         <div class="project-info" style="margin-top: 10px;">
@@ -1096,9 +1161,7 @@
       await configReadyPromise;
       const config = {
         modelProvider: document.getElementById('modelProvider').value,
-        modelName: document.getElementById('modelName').value,
         apiKey: document.getElementById('apiKey').value,
-        localModelEndpoint: document.getElementById('localModelEndpoint').value,
         contextWindow: document.getElementById('contextWindow').value,
         reserveTokens: document.getElementById('reserveTokens').value,
         keepRecentTokens: document.getElementById('keepRecentTokens').value,
@@ -1143,19 +1206,12 @@
       const res = await fetch('/api/config');
       const cfg = await res.json();
       document.getElementById('modelProvider').value = cfg.modelProvider || 'local';
-      document.getElementById('modelName').value = cfg.modelName || '';
-      document.getElementById('localModelEndpoint').value = cfg.localModelEndpoint || 'http://localhost:8080/v1';
-      
+
       // Load compaction settings
       if (cfg.contextWindow) document.getElementById('contextWindow').value = cfg.contextWindow;
       if (cfg.reserveTokens) document.getElementById('reserveTokens').value = cfg.reserveTokens;
       if (cfg.keepRecentTokens) document.getElementById('keepRecentTokens').value = cfg.keepRecentTokens;
-      
-      // Load models directory (now persisted across restarts)
-      if (cfg.modelsDir) {
-        document.getElementById('modelsDir').value = cfg.modelsDir;
-      }
-      
+
       if (cfg.ngl) document.getElementById('ngl').value = cfg.ngl;
       if (cfg.nCpuMoe) document.getElementById('n-cpu-moe').value = cfg.nCpuMoe;
       if (cfg.fa !== undefined) document.getElementById('fa').value = cfg.fa;
@@ -1253,19 +1309,8 @@
       buildPreview();
     }
 
-    // Keep "Local Endpoint" in sync with --host/--port so there's only one source of truth
-    // for where the local llama.cpp server actually listens. Only auto-updates when the
-    // provider is "local" — cloud/ollama endpoints are independent and left alone.
-    function syncLocalEndpointFromHostPort() {
-      if (document.getElementById('modelProvider').value !== 'local') return;
-      const host = document.getElementById('host').value.trim() || '127.0.0.1';
-      const port = document.getElementById('port').value.trim() || '8080';
-      document.getElementById('localModelEndpoint').value = `http://${host}:${port}/v1`;
-    }
-
     // Called whenever any individual flag changes — auto-saves to the currently loaded model
     function onFlagChange(flag) {
-      if (flag === 'host' || flag === 'port') syncLocalEndpointFromHostPort();
       buildPreview();
       saveFlagsForCurrentModel();
     }
@@ -1329,10 +1374,7 @@
         port: document.getElementById('port').value,
         rpcEnabled: document.getElementById('rpcEnabled').value,
         rpcAddress: document.getElementById('rpcAddress').value,
-        customFlags: document.getElementById('customFlags').value,
-        // Kept in sync with host/port by syncLocalEndpointFromHostPort() — included here so
-        // the per-flag-change autosave persists it too, not just the general Save button.
-        localModelEndpoint: document.getElementById('localModelEndpoint').value
+        customFlags: document.getElementById('customFlags').value
       };
     }
 
@@ -1637,31 +1679,6 @@
       if (e.target === this) closeFolderBrowser();
     });
 
-    // Set models directory
-    document.getElementById('setModelsDirBtn').addEventListener('click', async function() {
-      const dir = document.getElementById('modelsDir').value.trim();
-      if (!dir) {
-        alert('Please enter a models directory path');
-        return;
-      }
-      
-      // Save via config endpoint (persists to disk)
-      const res = await fetch('/api/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modelsDir: dir })
-      });
-      const data = await res.json();
-      
-      if (data.error) {
-        alert(data.error);
-        return;
-      }
-      
-      document.getElementById('modelScanStatus').textContent = '✅ Using: ' + dir;
-      loadModels();
-    });
-
     // One-time CPU core detection, shown as a hint only — never overrides a value you set.
     async function loadSystemInfo() {
       try {
@@ -1705,9 +1722,8 @@
       refreshMcpStatus();
     }
 
-    // MCP servers this stack exposes (AgentBox, Understory) — fetched once. Checkbox
-    // state is per-selected-CLI, refreshed from the client's own config file whenever
-    // the dropdown changes.
+    // MCP servers this stack exposes — fetched once. Checkbox state is per-selected-CLI,
+    // refreshed from the client's own config file whenever the dropdown changes.
     let mcpServers = [];
     async function loadMcpServers() {
       try {
@@ -1743,7 +1759,7 @@
 
     // Pulls current registration state for the selected CLI from its own config file
     // (read-only) and reflects it in the checkboxes — including disabling ones that
-    // client can't use (e.g. Codex CLI can't take AgentBox's SSE transport) or that
+    // client can't use (e.g. Codex CLI can't take an SSE-only server's transport) or that
     // aren't supported for this client at all.
     async function refreshMcpStatus() {
       if (mcpServers.length === 0) return;
@@ -1803,11 +1819,49 @@
       }
     }
 
+    let llamacppRunning = false;
+    let vramPollDeadline = null; // set when llamacpp starts running; polling stops 3 min after
+    const VRAM_POLL_DURATION_MS = 3 * 60 * 1000;
+
+    async function loadGpuStats() {
+      const el = document.getElementById('vramStat');
+      if (!el) return; // llamacpp card not rendered (e.g. filtered out)
+      try {
+        const res = await fetch('/api/gpu-stats');
+        const stats = await res.json();
+        if (stats.available) {
+          el.textContent = `VRAM ${(stats.usedMb / 1024).toFixed(1)} / ${(stats.totalMb / 1024).toFixed(1)} GB`;
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      } catch (e) {
+        el.style.display = 'none';
+      }
+    }
+
+    async function refreshTick() {
+      await loadProjects();
+
+      // Only poll VRAM for the 3 minutes after llama-server starts — long enough
+      // to see how much room is left once the model finishes loading, without
+      // spawning nvidia-smi indefinitely while idle.
+      if (!llamacppRunning) {
+        vramPollDeadline = null;
+      } else if (!vramPollDeadline) {
+        vramPollDeadline = Date.now() + VRAM_POLL_DURATION_MS;
+      }
+
+      if (vramPollDeadline && Date.now() < vramPollDeadline) {
+        await loadGpuStats();
+      }
+    }
+
     loadModels();
     const configReadyPromise = loadConfig();
-    Promise.all([loadAgentClis(), loadMcpServers()]).then(loadProjects);
+    Promise.all([loadAgentClis(), loadMcpServers()]).then(refreshTick);
     loadSystemInfo();
-    setInterval(loadProjects, 2000);
+    setInterval(refreshTick, 2000);
   </script>
 </body>
 </html>

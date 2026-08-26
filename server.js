@@ -1,5 +1,5 @@
 import express from 'express';
-import { spawn } from 'child_process';
+import { spawn, execFile } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -368,6 +368,17 @@ function detectPiTerminal() {
   return 'xdg-open';
 }
 
+// Build the {cmd, args} to spawn a new terminal window running the given CLI
+// command (e.g. 'pi'). bash/xdg-open/ptyxis are Linux-only — on Windows there's
+// no bash by default, so open a cmd.exe window instead.
+function buildTerminalLaunch(agentCmd) {
+  if (process.platform === 'win32') {
+    return { cmd: 'cmd.exe', args: ['/c', 'start', 'Coding Agent', 'cmd.exe', '/k', agentCmd] };
+  }
+  const terminal = detectPiTerminal();
+  return { cmd: terminal, args: ['--new-window', '--', 'bash', '-lic', `${agentCmd}; exec bash`] };
+}
+
 // llama-server's own stdout/stderr get redirected here (instead of inherited into the
 // launcher's process) so a separate terminal window can tail them live regardless of
 // how the launcher itself was started (desktop icon, headless, etc).
@@ -405,8 +416,6 @@ const CODING_AGENT_CLIS = [
 // CLIENT itself as a subprocess (stdio) — nothing for the launcher to keep running,
 // but also no "is it up" status to check.
 const PROJECT_MCP_SERVERS = [
-  { id: 'agentbox', name: 'AgentBox', kind: 'remote', url: 'http://localhost:4001/mcp', transport: 'sse' },
-  { id: 'understory', name: 'Understory', kind: 'remote', url: 'http://localhost:3800/mcp', transport: 'http' },
   { id: 'open-websearch', name: 'Web Search', kind: 'remote', url: 'http://localhost:3900/mcp', transport: 'http' },
   { id: 'chrome-devtools', name: 'Chrome DevTools', kind: 'local', command: 'npx', args: ['-y', 'chrome-devtools-mcp@latest'] },
   // The official fetch MCP server is a Python package run via uvx — NOT the npm
@@ -607,8 +616,8 @@ const MCP_CLIENT_WRITERS = {
     },
   },
   codex: {
-    // Codex CLI's remote transport is streamable-HTTP only, not SSE — AgentBox
-    // (SSE) can't be registered there. Local/stdio servers work regardless.
+    // Codex CLI's remote transport is streamable-HTTP only, not SSE — any
+    // SSE-only server can't be registered there. Local/stdio servers work regardless.
     supports: (server) => supportsRemoteOrLocal(server, ['http']),
     configPath: () => path.join(homeDir, '.codex', 'config.toml'),
     isRegistered(server) {
@@ -649,7 +658,7 @@ const MCP_CLIENT_WRITERS = {
       if (enabled) {
         // Cline's schema requires `type` explicitly for remote servers — omitting
         // it defaults to legacy SSE, which would silently misconfigure the
-        // streamable-HTTP ones (Understory, Web Search).
+        // streamable-HTTP ones (e.g. Web Search).
         data.mcpServers[server.id] = server.kind === 'local'
           ? { ...stdioEntry(server), disabled: false }
           : {
@@ -678,7 +687,12 @@ const projectConfigs = {
     name: 'Llama.cpp Server',
     port: 8080,
     relativePath: 'llama.cpp-fable5',
-    cmd: './build/bin/llama-server',
+    // Windows (MSVC) CMake builds put the binary under a Release\ subfolder
+    // with a .exe extension; Linux/Mac (make/ninja) builds put it directly
+    // in build/bin with no extension.
+    cmd: process.platform === 'win32'
+      ? '.\\build\\bin\\Release\\llama-server.exe'
+      : './build/bin/llama-server',
     args: ['--port', '8080', '--host', '127.0.0.1'],
     url: 'http://localhost:8080',
     isEngine: true
@@ -711,8 +725,7 @@ const projectConfigs = {
     name: 'Coding Agent',
     port: null,
     relativePath: '',
-    cmd: detectPiTerminal(),
-    args: ['--new-window', '--', 'bash', '-lic', 'pi; exec bash'],
+    ...buildTerminalLaunch('pi'),
     url: null,
     isTerminal: true
   }
@@ -783,6 +796,22 @@ app.get('/api/projects', (req, res) => {
     running: !!processes[key]
   }));
   res.json(status);
+});
+
+// GPU VRAM usage (NVIDIA only, via nvidia-smi). Returns null if unavailable
+// (no NVIDIA GPU, driver not installed, etc.) so the UI can just hide the stat.
+app.get('/api/gpu-stats', (req, res) => {
+  execFile('nvidia-smi', ['--query-gpu=memory.used,memory.total', '--format=csv,noheader,nounits'], (err, stdout) => {
+    if (err) return res.json({ available: false });
+    // Multi-GPU machines report one line per card — sum them for a single total.
+    const totals = stdout.trim().split('\n').reduce((acc, line) => {
+      const [used, total] = line.split(',').map(s => parseInt(s.trim(), 10));
+      acc.used += used;
+      acc.total += total;
+      return acc;
+    }, { used: 0, total: 0 });
+    res.json({ available: true, usedMb: totals.used, totalMb: totals.total });
+  });
 });
 
 app.get('/api/models', (req, res) => {
@@ -1067,7 +1096,9 @@ app.post('/api/start/:id', async (req, res) => {
   // from the dropdown — defaults to Pi if nothing was sent.
   if (req.params.id === 'pi') {
     const agent = CODING_AGENT_CLIS.find(a => a.id === req.body.agentId) || CODING_AGENT_CLIS[0];
-    args = ['--new-window', '--', 'bash', '-lic', `${agent.cmd}; exec bash`];
+    const launch = buildTerminalLaunch(agent.cmd);
+    proj.cmd = launch.cmd;
+    args = launch.args;
   }
 
   // For llama.cpp, add model path and individual flags
@@ -1136,9 +1167,10 @@ app.post('/api/start/:id', async (req, res) => {
     }
   }
 
-  // Check if node_modules exists, install if needed
+  // Check if node_modules exists, install if needed (skip for engines like
+  // llama-server — they're compiled binaries, not npm projects)
   const nodeModulesPath = path.join(proj.dir, 'node_modules');
-  if (!fs.existsSync(nodeModulesPath)) {
+  if (!proj.isEngine && !fs.existsSync(nodeModulesPath)) {
     console.log(`${proj.name}: node_modules not found, running install...`);
     const installCmd = fs.existsSync(path.join(proj.dir, 'pnpm-lock.yaml')) ? 'pnpm' : 'npm';
     const installArgs = installCmd === 'pnpm' ? ['install'] : ['install'];
@@ -1171,7 +1203,13 @@ app.post('/api/start/:id', async (req, res) => {
       ...env,
       PATH: `${localBinPath}${path.delimiter}${env.PATH || process.env.PATH}`
     },
-    shell: true // Always use shell for npm/pnpm scripts
+    // Only npm/pnpm need a shell on Windows (they're .cmd shims, not real
+    // executables). llama-server.exe is a real executable — shell:true would
+    // make Windows concatenate args into one unquoted command-line string,
+    // silently breaking any path containing a space (e.g. "Mud loggit").
+    // llamacpp is a real .exe, and the Windows 'pi' launch already goes through
+    // cmd.exe itself (buildTerminalLaunch) — neither needs a second shell layer.
+    shell: !(req.params.id === 'llamacpp' || (req.params.id === 'pi' && process.platform === 'win32'))
   };
 
   // llama-server's output is large and long-running — send it to its own log file
@@ -1191,6 +1229,13 @@ app.post('/api/start/:id', async (req, res) => {
     if (terminal === 'ptyxis') {
       const tailCmd = `tail -n 200 -f '${LLAMACPP_LOG_FILE}' | grep --line-buffered -Ev '${LLAMACPP_LOG_NOISE.source}'`;
       spawn('ptyxis', ['--new-window', '-T', 'Llama.cpp Server', '--', 'bash', '-lic', `${tailCmd}; exec bash`], { detached: true, stdio: 'ignore' }).unref();
+    } else if (process.platform === 'win32') {
+      // No ptyxis/gnome-terminal on Windows — open a PowerShell window that tails
+      // the log live instead, so startup success/failure is still visible without
+      // opening the log file by hand.
+      const psFilter = LLAMACPP_LOG_NOISE.source.replace(/'/g, "''");
+      const psCmd = `Get-Content -Path '${LLAMACPP_LOG_FILE}' -Wait -Tail 200 | Where-Object { $_ -notmatch '${psFilter}' }`;
+      spawn('cmd.exe', ['/c', 'start', 'Llama.cpp Server', 'powershell.exe', '-NoExit', '-Command', psCmd], { detached: true, stdio: 'ignore' }).unref();
     } else {
       console.log(`llamacpp: terminal viewer skipped (no ptyxis) — tail -f ${LLAMACPP_LOG_FILE} manually`);
     }
