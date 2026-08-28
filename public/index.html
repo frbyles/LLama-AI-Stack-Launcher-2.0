@@ -857,6 +857,15 @@
                   <input type="number" id="minP" min="0" max="1" step="0.01" value="0.05" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('minP')" onchange="onFlagChange('minP')">
                 </div>
               </div>
+              <div class="config-field" style="min-width: 85px;">
+                <label title="Presence penalty. Flat penalty applied to any token that has appeared at all so far, regardless of count — helps prevent repetition loops. 0 disables it.">
+                  Presence Penalty
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--presence-penalty</span>
+                  <input type="number" id="presencePenalty" min="-2" max="2" step="0.1" value="0" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('presencePenalty')" onchange="onFlagChange('presencePenalty')">
+                </div>
+              </div>
             </div>
           </div>
 
@@ -970,6 +979,61 @@
                   <input type="text" id="rpcAddress" placeholder="e.g. 10.42.0.2:50052" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('rpcAddress')" onchange="onFlagChange('rpcAddress')">
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- Vision projector (mmproj) -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; margin-bottom: 5px; color: #999; font-weight: 500; cursor: pointer;" title="When checked, auto-detects a mmproj-*.gguf file next to the selected model and passes --mmproj. Uncheck to disable vision without losing the saved path.">
+              <input type="checkbox" id="mmprojEnabled" onchange="onMmprojToggle()">
+              Vision Projector (mmproj) — auto-detect companion file
+            </label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--mmproj</span>
+              <input type="text" id="mmproj" placeholder="e.g. C:\path\to\mmproj-model-bf16.gguf" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('mmproj')" onchange="onFlagChange('mmproj')">
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
+              <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--image-min-tokens</span>
+              <input type="number" id="imageMinTokens" min="1" placeholder="e.g. 1024 — raise if image accuracy is poor" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('imageMinTokens')" onchange="onFlagChange('imageMinTokens')">
+            </div>
+          </div>
+
+          <!-- MTP / speculative decoding -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; margin-bottom: 5px; color: #999; font-weight: 500; cursor: pointer;" title="When checked, auto-detects a mtp-*.gguf sidecar file next to the selected model and passes it via -md, plus --spec-type draft-mtp. If no sidecar is found, only --spec-type draft-mtp is sent (for models like Gemma 4 with MTP layers embedded directly in the main GGUF).">
+              <input type="checkbox" id="mtpEnabled" onchange="onMtpToggle()">
+              MTP (multi-token prediction) — auto-detect companion file
+            </label>
+            <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 6px;">
+              <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-md</span>
+              <input type="text" id="mtpModel" placeholder="e.g. C:\path\to\mtp-model-Q8_0.gguf (blank = MTP embedded in main model)" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('mtpModel')" onchange="onFlagChange('mtpModel')">
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--spec-draft-n-max</span>
+              <input type="number" id="specDraftNMax" min="1" max="16" placeholder="e.g. 4" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('specDraftNMax')" onchange="onFlagChange('specDraftNMax')">
+            </div>
+          </div>
+
+          <!-- Classic draft-model speculative decoding -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85em; margin-bottom: 5px; color: #999; font-weight: 500; cursor: pointer;" title="Classic speculative decoding with a separate, smaller draft model (different from MTP). Auto-detects a draft-*.gguf file next to the selected model, but draft models usually live in their own folder/repo — you'll often need to browse for one manually. Ignored if MTP is checked (only one drafting mode can be active).">
+              <input type="checkbox" id="draftEnabled" onchange="onDraftToggle()">
+              Draft Model (classic speculative decoding)
+            </label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-md</span>
+              <input type="text" id="draftModel" placeholder="e.g. C:\path\to\a-smaller-sibling-model.gguf" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('draftModel')" onchange="onFlagChange('draftModel')">
+            </div>
+          </div>
+
+          <!-- Chat template override -->
+          <div style="margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px;">
+            <label for="chatTemplateFile" style="display: block; font-size: 0.85em; margin-bottom: 5px; color: #999; font-weight: 500;" title="Overrides the GGUF's embedded chat template with a .jinja file — use for models with known-buggy embedded templates. Leave blank to use the embedded template (still requires --jinja above).">
+              Chat Template Override — optional
+            </label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--chat-template-file</span>
+              <input type="text" id="chatTemplateFile" placeholder="e.g. C:\path\to\chat_template-fixed.jinja" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('chatTemplateFile')" onchange="onFlagChange('chatTemplateFile')">
             </div>
           </div>
 
@@ -1107,7 +1171,7 @@
             <div class="project-info">
               <div style="display: flex; gap: 6px; align-items: center;">
                 <span class="port-label">Directory:</span>
-                <span style="flex: 1; font-size: 0.85em; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${proj.dir}">${proj.dir}</span>
+                <span id="projDir-${proj.id}" style="flex: 1; font-size: 0.85em; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${proj.dir}">${proj.dir}</span>
                 <button class="btn-browse-dir" onclick="openProjectFolderBrowser('${proj.id}')" title="Browse for project folder">📂</button>
               </div>
               <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
@@ -1182,6 +1246,15 @@
         noRepack: document.getElementById('noRepack').value,
         rpcEnabled: document.getElementById('rpcEnabled').value,
         rpcAddress: document.getElementById('rpcAddress').value,
+        mmproj: document.getElementById('mmproj').value,
+        mmprojEnabled: document.getElementById('mmprojEnabled').checked ? '1' : '0',
+        imageMinTokens: document.getElementById('imageMinTokens').value,
+        mtpModel: document.getElementById('mtpModel').value,
+        mtpEnabled: document.getElementById('mtpEnabled').checked ? '1' : '0',
+        specDraftNMax: document.getElementById('specDraftNMax').value,
+        chatTemplateFile: document.getElementById('chatTemplateFile').value,
+        draftModel: document.getElementById('draftModel').value,
+        draftEnabled: document.getElementById('draftEnabled').checked ? '1' : '0',
         customFlags: document.getElementById('customFlags').value
       };
 
@@ -1232,6 +1305,7 @@
       if (cfg.repeatPenalty) document.getElementById('repeatPenalty').value = cfg.repeatPenalty;
       if (cfg.repeatLastN) document.getElementById('repeatLastN').value = cfg.repeatLastN;
       if (cfg.minP) document.getElementById('minP').value = cfg.minP;
+      if (cfg.presencePenalty) document.getElementById('presencePenalty').value = cfg.presencePenalty;
       if (cfg.threads) document.getElementById('threads').value = cfg.threads;
       if (cfg.threadsBatch) document.getElementById('threadsBatch').value = cfg.threadsBatch;
       if (cfg.batchSize) document.getElementById('batchSize').value = cfg.batchSize;
@@ -1242,6 +1316,15 @@
       if (cfg.noRepack !== undefined) document.getElementById('noRepack').value = cfg.noRepack;
       if (cfg.rpcEnabled !== undefined) document.getElementById('rpcEnabled').value = cfg.rpcEnabled;
       if (cfg.rpcAddress) document.getElementById('rpcAddress').value = cfg.rpcAddress;
+      if (cfg.mmproj) document.getElementById('mmproj').value = cfg.mmproj;
+      if (cfg.mmprojEnabled !== undefined) document.getElementById('mmprojEnabled').checked = cfg.mmprojEnabled === '1';
+      if (cfg.imageMinTokens) document.getElementById('imageMinTokens').value = cfg.imageMinTokens;
+      if (cfg.mtpModel) document.getElementById('mtpModel').value = cfg.mtpModel;
+      if (cfg.mtpEnabled !== undefined) document.getElementById('mtpEnabled').checked = cfg.mtpEnabled === '1';
+      if (cfg.specDraftNMax) document.getElementById('specDraftNMax').value = cfg.specDraftNMax;
+      if (cfg.chatTemplateFile) document.getElementById('chatTemplateFile').value = cfg.chatTemplateFile;
+      if (cfg.draftModel) document.getElementById('draftModel').value = cfg.draftModel;
+      if (cfg.draftEnabled !== undefined) document.getElementById('draftEnabled').checked = cfg.draftEnabled === '1';
       if (cfg.customFlags) {
         document.getElementById('customFlags').value = cfg.customFlags;
       }
@@ -1291,6 +1374,7 @@
           } else {
             modelInfo.textContent = `📦 ${fileName} — first time loading`;
           }
+          autoDetectCompanions(modelPath);
         });
       } else {
         modelInfo.textContent = 'Select a model to see details';
@@ -1315,6 +1399,100 @@
       saveFlagsForCurrentModel();
     }
 
+    // Looks in the selected model's folder for mmproj-*/mtp-*/draft-*/*.jinja companion files
+    async function fetchModelCompanions(modelPath) {
+      const res = await fetch(`/api/model-companions?modelPath=${encodeURIComponent(modelPath)}`);
+      if (!res.ok) throw new Error(`Companion lookup failed: ${res.status}`);
+      return res.json();
+    }
+
+    // Runs automatically whenever a model is selected — fills any empty
+    // companion field it finds a match for, and auto-checks that field's
+    // enable box (mmproj/mtp/draft) since finding the file is the signal the
+    // user wants it active. Never overwrites a field that already has a value.
+    async function autoDetectCompanions(modelPath) {
+      let data;
+      try {
+        data = await fetchModelCompanions(modelPath);
+      } catch (e) {
+        console.warn('Companion auto-detect failed:', e.message);
+        return;
+      }
+
+      let changed = false;
+
+      const mmprojField = document.getElementById('mmproj');
+      if (!mmprojField.value.trim() && data.mmproj && data.mmproj.length > 0) {
+        mmprojField.value = data.mmproj[0];
+        document.getElementById('mmprojEnabled').checked = true;
+        changed = true;
+      }
+
+      const mtpField = document.getElementById('mtpModel');
+      if (!mtpField.value.trim() && data.mtp && data.mtp.length > 0) {
+        mtpField.value = data.mtp[0];
+        document.getElementById('mtpEnabled').checked = true;
+        changed = true;
+      }
+
+      // Draft models usually live in a different folder/repo than the main
+      // model, so this rarely finds anything — that's expected, not a bug.
+      const draftField = document.getElementById('draftModel');
+      if (!draftField.value.trim() && data.draft && data.draft.length > 0) {
+        draftField.value = data.draft[0];
+        document.getElementById('draftEnabled').checked = true;
+        changed = true;
+      }
+
+      const chatTemplateField = document.getElementById('chatTemplateFile');
+      if (!chatTemplateField.value.trim() && data.chatTemplate && data.chatTemplate.length > 0) {
+        chatTemplateField.value = data.chatTemplate[0];
+        changed = true;
+      }
+
+      if (changed) {
+        buildPreview();
+        saveFlagsForCurrentModel();
+      }
+    }
+
+    // Manual checkbox handlers — auto-detect already runs on model select, so
+    // these mainly handle re-checking a box after the user cleared its field.
+    async function onMmprojToggle() {
+      const checkbox = document.getElementById('mmprojEnabled');
+      const modelPath = document.getElementById('modelSelect').value;
+      const field = document.getElementById('mmproj');
+      if (checkbox.checked && !field.value.trim() && modelPath) {
+        const data = await fetchModelCompanions(modelPath).catch(() => null);
+        if (data && data.mmproj && data.mmproj.length > 0) field.value = data.mmproj[0];
+      }
+      onFlagChange('mmprojEnabled');
+    }
+
+    async function onMtpToggle() {
+      const checkbox = document.getElementById('mtpEnabled');
+      const modelPath = document.getElementById('modelSelect').value;
+      const field = document.getElementById('mtpModel');
+      if (checkbox.checked && !field.value.trim() && modelPath) {
+        const data = await fetchModelCompanions(modelPath).catch(() => null);
+        if (data && data.mtp && data.mtp.length > 0) field.value = data.mtp[0];
+        // No sidecar found — leave blank. --spec-type draft-mtp alone still
+        // works for models with MTP layers embedded in the main GGUF (e.g. Gemma 4).
+      }
+      onFlagChange('mtpEnabled');
+    }
+
+    async function onDraftToggle() {
+      const checkbox = document.getElementById('draftEnabled');
+      const modelPath = document.getElementById('modelSelect').value;
+      const field = document.getElementById('draftModel');
+      if (checkbox.checked && !field.value.trim() && modelPath) {
+        const data = await fetchModelCompanions(modelPath).catch(() => null);
+        if (data && data.draft && data.draft.length > 0) field.value = data.draft[0];
+      }
+      onFlagChange('draftEnabled');
+    }
+
     async function saveFlagsForCurrentModel() {
       await configReadyPromise;
       const config = buildAllFlags();
@@ -1329,16 +1507,19 @@
       'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
       'contextAmount', 'ctk', 'ctv',
       'reasoningFormat', 'reasoningBudget', 'nPredict',
-      'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP',
+      'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
       'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
-      'host', 'port', 'rpcEnabled', 'rpcAddress', 'customFlags'
+      'host', 'port', 'rpcEnabled', 'rpcAddress', 'mmproj', 'mmprojEnabled', 'imageMinTokens',
+      'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled', 'specDraftNMax', 'chatTemplateFile', 'customFlags'
     ];
 
     // Apply saved flags to the form (called when model is selected)
     function applyFlagsToForm(flags) {
       FLAG_KEYS.forEach(key => {
         const el = document.getElementById(key === 'nCpuMoe' ? 'n-cpu-moe' : key);
-        if (el && flags[key] !== undefined) el.value = flags[key];
+        if (!el || flags[key] === undefined) return;
+        if (el.type === 'checkbox') el.checked = flags[key] === '1' || flags[key] === true;
+        else el.value = flags[key];
       });
       buildPreview();
       onContextAmountChange();
@@ -1364,6 +1545,7 @@
         repeatPenalty: document.getElementById('repeatPenalty').value,
         repeatLastN: document.getElementById('repeatLastN').value,
         minP: document.getElementById('minP').value,
+        presencePenalty: document.getElementById('presencePenalty').value,
         threads: document.getElementById('threads').value,
         threadsBatch: document.getElementById('threadsBatch').value,
         batchSize: document.getElementById('batchSize').value,
@@ -1374,6 +1556,15 @@
         port: document.getElementById('port').value,
         rpcEnabled: document.getElementById('rpcEnabled').value,
         rpcAddress: document.getElementById('rpcAddress').value,
+        mmproj: document.getElementById('mmproj').value,
+        mmprojEnabled: document.getElementById('mmprojEnabled').checked ? '1' : '0',
+        imageMinTokens: document.getElementById('imageMinTokens').value,
+        mtpModel: document.getElementById('mtpModel').value,
+        mtpEnabled: document.getElementById('mtpEnabled').checked ? '1' : '0',
+        specDraftNMax: document.getElementById('specDraftNMax').value,
+        chatTemplateFile: document.getElementById('chatTemplateFile').value,
+        draftModel: document.getElementById('draftModel').value,
+        draftEnabled: document.getElementById('draftEnabled').checked ? '1' : '0',
         customFlags: document.getElementById('customFlags').value
       };
     }
@@ -1430,6 +1621,9 @@
       const minp = document.getElementById('minP').value;
       if (minp && parseFloat(minp) !== 0.05) parts.push(`--min-p ${minp}`);
 
+      const presencePenalty = document.getElementById('presencePenalty').value;
+      if (presencePenalty && parseFloat(presencePenalty) !== 0) parts.push(`--presence-penalty ${presencePenalty}`);
+
       // Performance flags
       const threads = document.getElementById('threads').value;
       if (threads && parseInt(threads) > 0) parts.push(`--threads ${threads}`);
@@ -1458,6 +1652,30 @@
       const rpcEnabled = document.getElementById('rpcEnabled').value;
       const rpcAddress = document.getElementById('rpcAddress').value.trim();
       if (rpcEnabled === '1' && rpcAddress) parts.push(`--rpc ${rpcAddress}`);
+
+      const mmproj = document.getElementById('mmproj').value.trim();
+      if (document.getElementById('mmprojEnabled').checked && mmproj) parts.push(`--mmproj ${mmproj}`);
+
+      const imageMinTokens = document.getElementById('imageMinTokens').value.trim();
+      if (imageMinTokens) parts.push(`--image-min-tokens ${imageMinTokens}`);
+
+      const mtpOn = document.getElementById('mtpEnabled').checked;
+      const draftOn = document.getElementById('draftEnabled').checked;
+      if (mtpOn) {
+        const mtpModel = document.getElementById('mtpModel').value.trim();
+        if (mtpModel) parts.push(`-md ${mtpModel}`);
+        parts.push('--spec-type draft-mtp');
+      } else if (draftOn) {
+        const draftModel = document.getElementById('draftModel').value.trim();
+        if (draftModel) parts.push(`-md ${draftModel}`);
+      }
+      if (mtpOn || draftOn) {
+        const specDraftNMax = document.getElementById('specDraftNMax').value.trim();
+        if (specDraftNMax) parts.push(`--spec-draft-n-max ${specDraftNMax}`);
+      }
+
+      const chatTemplateFile = document.getElementById('chatTemplateFile').value.trim();
+      if (chatTemplateFile) parts.push(`--chat-template-file ${chatTemplateFile}`);
 
       const extra = document.getElementById('customFlags').value.trim();
       if (extra) parts.push(extra);
@@ -1540,12 +1758,22 @@
       document.getElementById('repeatPenalty').value = '1.1';
       document.getElementById('repeatLastN').value = '64';
       document.getElementById('minP').value = '0.05';
+      document.getElementById('presencePenalty').value = '0';
       document.getElementById('threads').value = '0';
       document.getElementById('threadsBatch').value = '0';
       document.getElementById('batchSize').value = '512';
       document.getElementById('host').value = '127.0.0.1';
       document.getElementById('port').value = '8080';
       document.getElementById('contextAmount').value = '';
+      document.getElementById('mmproj').value = '';
+      document.getElementById('mmprojEnabled').checked = false;
+      document.getElementById('imageMinTokens').value = '';
+      document.getElementById('mtpModel').value = '';
+      document.getElementById('mtpEnabled').checked = false;
+      document.getElementById('draftModel').value = '';
+      document.getElementById('draftEnabled').checked = false;
+      document.getElementById('specDraftNMax').value = '';
+      document.getElementById('chatTemplateFile').value = '';
       document.getElementById('customFlags').value = '';
       buildPreview();
       onContextAmountChange();
@@ -1653,7 +1881,15 @@
           return;
         }
         closeFolderBrowser();
-        // Reload projects to show updated directory
+        // Terminal cards (e.g. the Coding Agent picker) render their innerHTML only once
+        // to avoid closing an open <select> — loadProjects() won't touch their Directory
+        // text, so patch it directly here.
+        const dirSpan = document.getElementById(`projDir-${currentBrowseTarget}`);
+        if (dirSpan) {
+          dirSpan.textContent = data.dir;
+          dirSpan.title = data.dir;
+        }
+        // Reload projects to show updated directory for non-terminal cards
         await loadProjects();
       } else {
         // Adding model folder

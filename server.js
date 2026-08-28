@@ -147,7 +147,9 @@ const FLAG_KEYS = [
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
   'reasoningFormat', 'reasoningBudget',
-  'host', 'port', 'noMmap', 'mlock', 'noRepack', 'rpcEnabled', 'rpcAddress', 'customFlags'
+  'host', 'port', 'noMmap', 'mlock', 'noRepack', 'rpcEnabled', 'rpcAddress',
+  'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
+  'specDraftNMax', 'chatTemplateFile', 'customFlags'
 ];
 
 // Persisted general config (saved to launcherConfig.json)
@@ -157,9 +159,11 @@ const CONFIG_PERSIST_KEYS = [
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
   'reasoningFormat', 'reasoningBudget', 'nPredict',
-  'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP',
+  'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
-  'host', 'port', 'rpcEnabled', 'rpcAddress'
+  'host', 'port', 'rpcEnabled', 'rpcAddress',
+  'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
+  'specDraftNMax', 'chatTemplateFile'
 ];
 
 function loadLauncherConfig() {
@@ -195,9 +199,11 @@ const ALLOWED_CONFIG_KEYS = [
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
   'reasoningFormat', 'reasoningBudget', 'nPredict',
-  'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP',
+  'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
-  'host', 'port', 'rpcEnabled', 'rpcAddress'
+  'host', 'port', 'rpcEnabled', 'rpcAddress',
+  'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
+  'specDraftNMax', 'chatTemplateFile'
 ];
 
 function captureFlagsFromForm() {
@@ -298,6 +304,15 @@ const config = {
   apiKey: '',
   localModelEndpoint: 'http://localhost:8080/v1',
   selectedModel: null,
+  mmproj: '',
+  mmprojEnabled: '0',
+  imageMinTokens: '',
+  mtpModel: '',
+  mtpEnabled: '0',
+  draftModel: '',
+  draftEnabled: '0',
+  specDraftNMax: '',
+  chatTemplateFile: '',
   customFlags: '',
   contextAmount: '',
   ngl: '99',
@@ -321,6 +336,7 @@ const config = {
   repeatPenalty: '1.1',
   repeatLastN: '64',
   minP: '0.05',
+  presencePenalty: '0',
   threads: '0',
   threadsBatch: '0',
   batchSize: '512',
@@ -422,6 +438,17 @@ const PROJECT_MCP_SERVERS = [
   // package of the same name, which is an unrelated squatted security placeholder.
   { id: 'webfetch', name: 'WebFetch', kind: 'local', command: 'uvx', args: ['mcp-server-fetch'] },
   { id: 'sequential-thinking', name: 'Sequential Thinking', kind: 'local', command: 'npx', args: ['-y', '@modelcontextprotocol/server-sequential-thinking'] },
+  // ahujasid/blender-mcp — a published PyPI package (fetched by uvx like webfetch
+  // above), not a local checkout. Talks to a companion Blender addon over a socket
+  // on port 9876; that addon must be installed and running inside Blender itself,
+  // which this launcher has no way to automate.
+  { id: 'blender-mcp', name: 'Blender MCP', kind: 'local', command: 'uvx', args: ['blender-mcp'] },
+  // CoplayDev/unity-mcp — fetched globally via uvx from PyPI (package "mcpforunityserver"),
+  // per its documented manual client config. Needs the companion "MCP for Unity" Unity
+  // package installed in the target project (Package Manager -> Add from git URL:
+  // https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main) and the Editor
+  // running with that bridge active — same out-of-launcher-scope caveat as Blender MCP.
+  { id: 'unity-mcp', name: 'Unity MCP', kind: 'local', command: 'uvx', args: ['--from', 'mcpforunityserver', 'mcp-for-unity', '--transport', 'stdio'] },
 ];
 
 function readJsonConfigFile(filePath) {
@@ -728,6 +755,19 @@ const projectConfigs = {
     ...buildTerminalLaunch('pi'),
     url: null,
     isTerminal: true
+  },
+  'open-websearch': {
+    // Backs the "Web Search" MCP server below — nothing was actually running this
+    // service before, so any client with it ticked failed to connect to :3900.
+    // It's an npx-fetched package, not a local checkout, so there's no project
+    // folder to point at (isEngine skips the npm-install-in-this-dir step).
+    name: 'Web Search (MCP)',
+    port: 3900,
+    relativePath: '',
+    cmd: 'npx',
+    args: ['-y', 'open-websearch@latest'],
+    url: 'http://localhost:3900/mcp',
+    isEngine: true
   }
 };
 
@@ -1077,6 +1117,37 @@ app.get('/api/model-flags', (req, res) => {
   res.json(modelFlags);
 });
 
+// Look in a model's folder for mmproj-*/mtp-*/draft-* companion GGUF files and
+// a *.jinja chat template override, so the UI can auto-populate them when a
+// model is selected. Excludes imatrix files and split-shard parts (never companions).
+app.get('/api/model-companions', (req, res) => {
+  const modelPath = req.query.modelPath;
+  if (!modelPath) return res.status(400).json({ error: 'modelPath query param required' });
+
+  try {
+    const dir = path.dirname(modelPath);
+    const entries = fs.readdirSync(dir, { withFileTypes: true }).filter(e => e.isFile());
+    const ggufs = entries.filter(e => e.name.toLowerCase().endsWith('.gguf'));
+
+    const mmproj = ggufs
+      .filter(e => /^mmproj-/i.test(e.name))
+      .map(e => path.join(dir, e.name));
+    const mtp = ggufs
+      .filter(e => /^mtp-/i.test(e.name))
+      .map(e => path.join(dir, e.name));
+    const draft = ggufs
+      .filter(e => /^draft-/i.test(e.name))
+      .map(e => path.join(dir, e.name));
+    const chatTemplate = entries
+      .filter(e => e.name.toLowerCase().endsWith('.jinja'))
+      .map(e => path.join(dir, e.name));
+
+    res.json({ mmproj, mtp, draft, chatTemplate });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/start/:id', async (req, res) => {
   const proj = getProject(req.params.id);
   if (!proj) return res.status(404).json({ error: 'Project not found' });
@@ -1089,6 +1160,11 @@ app.post('/api/start/:id', async (req, res) => {
     ...process.env,
     ANTHROPIC_API_KEY: config.apiKey || process.env.ANTHROPIC_API_KEY
   };
+
+  // open-websearch defaults to port 3000; the MCP entry below expects 3900.
+  if (req.params.id === 'open-websearch') {
+    env.PORT = String(proj.port);
+  }
 
   let args = [...proj.args];
 
@@ -1105,6 +1181,39 @@ app.post('/api/start/:id', async (req, res) => {
   if (req.params.id === 'llamacpp') {
     if (config.selectedModel) {
       args = ['-m', config.selectedModel];
+
+      // Vision projector (mmproj) — pushed as its own array element so paths
+      // with spaces (e.g. "Mud loggit") survive; never route through customFlags.
+      // Gated on mmprojEnabled so the saved path can persist without being active.
+      if (config.mmprojEnabled === '1' && config.mmproj && config.mmproj.trim()) {
+        args.push('--mmproj', config.mmproj.trim());
+        if (config.imageMinTokens && parseInt(config.imageMinTokens) > 0) {
+          args.push('--image-min-tokens', config.imageMinTokens);
+        }
+      }
+
+      // Speculative decoding: MTP (self-speculative, same-model sidecar) and
+      // classic draft-model speculation both load via -md, so only one can be
+      // active — MTP wins if both are checked. mtpModel may be blank for models
+      // that embed MTP layers directly in the main GGUF (e.g. Gemma 4).
+      if (config.mtpEnabled === '1') {
+        if (config.mtpModel && config.mtpModel.trim()) {
+          args.push('-md', config.mtpModel.trim());
+        }
+        args.push('--spec-type', 'draft-mtp');
+      } else if (config.draftEnabled === '1' && config.draftModel && config.draftModel.trim()) {
+        args.push('-md', config.draftModel.trim());
+      }
+      if ((config.mtpEnabled === '1' || config.draftEnabled === '1') &&
+          config.specDraftNMax && parseInt(config.specDraftNMax) > 0) {
+        args.push('--spec-draft-n-max', config.specDraftNMax);
+      }
+
+      // Overrides the GGUF's embedded chat template (used with --chat-template-file
+      // fixes for models with known-buggy embedded templates, e.g. Qwen3.6).
+      if (config.chatTemplateFile && config.chatTemplateFile.trim()) {
+        args.push('--chat-template-file', config.chatTemplateFile.trim());
+      }
 
       // Add context amount as -c flag if provided
       const ctxParsed = parseContextAmount(config.contextAmount);
@@ -1133,6 +1242,7 @@ app.post('/api/start/:id', async (req, res) => {
       if (config.repeatPenalty && parseFloat(config.repeatPenalty) !== 1.1) args.push('--repeat-penalty', config.repeatPenalty);
       if (config.repeatLastN && parseInt(config.repeatLastN) !== 64) args.push('--repeat-last-n', config.repeatLastN);
       if (config.minP && parseFloat(config.minP) !== 0.05) args.push('--min-p', config.minP);
+      if (config.presencePenalty && parseFloat(config.presencePenalty) !== 0) args.push('--presence-penalty', config.presencePenalty);
 
       // Performance flags
       if (config.threads && parseInt(config.threads) > 0) args.push('--threads', config.threads);
