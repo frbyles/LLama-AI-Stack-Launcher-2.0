@@ -147,7 +147,8 @@ const FLAG_KEYS = [
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
   'reasoningFormat', 'reasoningBudget',
-  'host', 'port', 'noMmap', 'mlock', 'noRepack', 'rpcEnabled', 'rpcAddress',
+  'host', 'port', 'noMmap', 'mlock', 'noRepack', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
+  'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort',
   'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
   'specDraftNMax', 'chatTemplateFile', 'customFlags'
 ];
@@ -161,7 +162,8 @@ const CONFIG_PERSIST_KEYS = [
   'reasoningFormat', 'reasoningBudget', 'nPredict',
   'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
-  'host', 'port', 'rpcEnabled', 'rpcAddress',
+  'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
+  'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort',
   'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
   'specDraftNMax', 'chatTemplateFile'
 ];
@@ -201,7 +203,8 @@ const ALLOWED_CONFIG_KEYS = [
   'reasoningFormat', 'reasoningBudget', 'nPredict',
   'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
-  'host', 'port', 'rpcEnabled', 'rpcAddress',
+  'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
+  'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort',
   'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
   'specDraftNMax', 'chatTemplateFile'
 ];
@@ -328,7 +331,18 @@ const config = {
   mlock: '0',
   noRepack: '0',
   rpcEnabled: '0',
-  rpcAddress: '',
+  // "10.0.x.x" is a fill-in-the-blank template, not a real address — most home
+  // LANs are 10.0.0.0/24 or similar, so only the last two octets usually need
+  // editing. Run `ipconfig` (Windows) on the worker machine to find its real
+  // IPv4 address (look for "IPv4 Address" under the active adapter).
+  rpcAddress: '10.0.x.x:50052',
+  // "1,1" splits evenly between two devices (e.g. local GPU + one RPC worker) —
+  // a reasonable starting point; edit the ratio once you know each device's
+  // free memory (see --list-devices output for exact figures).
+  tensorSplit: '1,1',
+  rpcWorkerMode: '0',
+  rpcWorkerHost: '0.0.0.0',
+  rpcWorkerPort: '50052',
   nPredict: '',
   temp: '0.8',
   topP: '0.95',
@@ -714,11 +728,12 @@ const projectConfigs = {
     name: 'Llama.cpp Server',
     port: 8080,
     relativePath: 'llama.cpp-fable5',
-    // Windows (MSVC) CMake builds put the binary under a Release\ subfolder
-    // with a .exe extension; Linux/Mac (make/ninja) builds put it directly
-    // in build/bin with no extension.
+    // Windows CMake builds using the MSVC "Visual Studio" solution generator put
+    // the binary under a Release\ subfolder; Ninja-generator builds (the default
+    // when cmake auto-picks Ninja, as opposed to `-G "Visual Studio 17 2022"`)
+    // output flat to build\bin regardless of --config. This assumes Ninja.
     cmd: process.platform === 'win32'
-      ? '.\\build\\bin\\Release\\llama-server.exe'
+      ? '.\\build\\bin\\llama-server.exe'
       : './build/bin/llama-server',
     args: ['--port', '8080', '--host', '127.0.0.1'],
     url: 'http://localhost:8080',
@@ -1179,7 +1194,35 @@ app.post('/api/start/:id', async (req, res) => {
 
   // For llama.cpp, add model path and individual flags
   if (req.params.id === 'llamacpp') {
-    if (config.selectedModel) {
+    // CMake's "Visual Studio" solution generator puts binaries under build\bin\Release\;
+    // the Ninja generator (also common — e.g. `cmake -B build` auto-picks Ninja if it's
+    // on PATH) puts them flat in build\bin. Same repo, same commit, different machines
+    // can end up with either layout depending on how they were configured — detect which
+    // one this checkout actually has rather than assuming, so the launcher isn't tied to
+    // whichever generator happened to be used on the machine it was last edited on.
+    if (process.platform === 'win32' && req.params.id === 'llamacpp') {
+      const releaseBin = path.join(proj.dir, 'build', 'bin', 'Release', 'llama-server.exe');
+      const flatBin = path.join(proj.dir, 'build', 'bin', 'llama-server.exe');
+      if (fs.existsSync(releaseBin)) {
+        proj.cmd = '.\\build\\bin\\Release\\llama-server.exe';
+      } else if (fs.existsSync(flatBin)) {
+        proj.cmd = '.\\build\\bin\\llama-server.exe';
+      }
+      // else: neither exists yet (not built) — leave proj.cmd at its default and let
+      // the spawn fail with a clear ENOENT rather than silently guessing.
+    }
+
+    if (config.rpcWorkerMode === '1') {
+      // RPC worker mode: this machine contributes raw GPU/CPU compute to a
+      // remote llama-server over the network. It loads no model itself —
+      // swap the binary to rpc-server (same build/bin folder) and skip every
+      // model/sampling flag below, which don't apply to rpc-server at all.
+      const rpcServerCmd = process.platform === 'win32'
+        ? proj.cmd.replace(/llama-server\.exe$/, 'ggml-rpc-server.exe')
+        : proj.cmd.replace(/llama-server$/, 'ggml-rpc-server');
+      proj.cmd = rpcServerCmd;
+      args = ['-H', (config.rpcWorkerHost || '0.0.0.0').trim(), '-p', (config.rpcWorkerPort || '50052').trim()];
+    } else if (config.selectedModel) {
       args = ['-m', config.selectedModel];
 
       // Vision projector (mmproj) — pushed as its own array element so paths
@@ -1267,6 +1310,14 @@ app.post('/api/start/:id', async (req, res) => {
       // RPC offload to remote llama.cpp worker(s) — off by default, machine-specific
       if (config.rpcEnabled === '1' && config.rpcAddress && config.rpcAddress.trim()) {
         args.push('--rpc', config.rpcAddress.trim());
+
+        // Tensor split only makes sense once there's more than one device to
+        // split across (this local GPU + at least one RPC worker) — gate it on
+        // RPC actually being enabled so it doesn't silently affect single-GPU
+        // local runs where no split was ever intended.
+        if (config.tensorSplit && config.tensorSplit.trim()) {
+          args.push('--tensor-split', config.tensorSplit.trim());
+        }
       }
 
       // Legacy extra custom flags (free-text fallback)

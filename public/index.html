@@ -971,12 +971,50 @@
                 </select>
               </div>
               <div class="config-field" style="min-width: 200px; flex: 1;">
-                <label title="Address(es) of RPC worker server(s), e.g. 10.42.0.2:50052. Comma-separate multiple workers. Only used when RPC Offload is Enabled.">
+                <label title="Address(es) of RPC worker server(s). Comma-separate multiple workers, e.g. 10.0.0.5:50052,10.0.0.6:50052. Only used when RPC Offload is Enabled. Don't know the worker's IPv4 address? On the WORKER machine, open a terminal (Command Prompt or PowerShell) and run: ipconfig — look for 'IPv4 Address' under the network adapter it's actually connected on (Wi-Fi or Ethernet).">
                   Worker Address(es)
                 </label>
                 <div style="display: flex; gap: 6px; align-items: center;">
                   <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--rpc</span>
-                  <input type="text" id="rpcAddress" placeholder="e.g. 10.42.0.2:50052" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('rpcAddress')" onchange="onFlagChange('rpcAddress')">
+                  <input type="text" id="rpcAddress" placeholder="10.0.x.x:50052" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('rpcAddress')" onchange="onFlagChange('rpcAddress')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 150px;">
+                <label title="Fraction of the model to offload to each device, comma-separated (e.g. 1,1 = even split, 3,1 = mostly local). Order matches device enumeration: local GPU(s) first, then RPC worker(s) in the order given above. Only applied when RPC Offload is Enabled — see --list-devices in a terminal for each device's actual free memory before picking a ratio.">
+                  Tensor Split
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-ts</span>
+                  <input type="text" id="tensorSplit" placeholder="1,1" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('tensorSplit')" onchange="onFlagChange('tensorSplit')">
+                </div>
+              </div>
+            </div>
+            <div class="config-row" style="margin-top: 8px;">
+              <div class="config-field" style="min-width: 110px;">
+                <label title="When enabled, the Start button launches ggml-rpc-server instead of llama-server on THIS machine — it loads no model and just exposes this PC's GPU/CPU to a remote llama-server's --rpc flag. Use this on a worker machine; leave disabled on the machine that actually serves the model.">
+                  Run as RPC Worker
+                </label>
+                <select id="rpcWorkerMode" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('rpcWorkerMode')">
+                  <option value="0" selected>Disabled</option>
+                  <option value="1">Enabled</option>
+                </select>
+              </div>
+              <div class="config-field" style="min-width: 140px;">
+                <label title="Bind address for ggml-rpc-server. Use 0.0.0.0 to accept connections from other machines on your LAN — 127.0.0.1 only accepts local connections.">
+                  Worker Host
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-H</span>
+                  <input type="text" id="rpcWorkerHost" placeholder="0.0.0.0" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('rpcWorkerHost')" onchange="onFlagChange('rpcWorkerHost')">
+                </div>
+              </div>
+              <div class="config-field" style="min-width: 110px;">
+                <label title="Port for ggml-rpc-server to listen on. Must match the port used in the remote machine's --rpc address.">
+                  Worker Port
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">-p</span>
+                  <input type="text" id="rpcWorkerPort" placeholder="50052" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('rpcWorkerPort')" onchange="onFlagChange('rpcWorkerPort')">
                 </div>
               </div>
             </div>
@@ -1246,6 +1284,10 @@
         noRepack: document.getElementById('noRepack').value,
         rpcEnabled: document.getElementById('rpcEnabled').value,
         rpcAddress: document.getElementById('rpcAddress').value,
+        tensorSplit: document.getElementById('tensorSplit').value,
+        rpcWorkerMode: document.getElementById('rpcWorkerMode').value,
+        rpcWorkerHost: document.getElementById('rpcWorkerHost').value,
+        rpcWorkerPort: document.getElementById('rpcWorkerPort').value,
         mmproj: document.getElementById('mmproj').value,
         mmprojEnabled: document.getElementById('mmprojEnabled').checked ? '1' : '0',
         imageMinTokens: document.getElementById('imageMinTokens').value,
@@ -1316,6 +1358,10 @@
       if (cfg.noRepack !== undefined) document.getElementById('noRepack').value = cfg.noRepack;
       if (cfg.rpcEnabled !== undefined) document.getElementById('rpcEnabled').value = cfg.rpcEnabled;
       if (cfg.rpcAddress) document.getElementById('rpcAddress').value = cfg.rpcAddress;
+      if (cfg.tensorSplit) document.getElementById('tensorSplit').value = cfg.tensorSplit;
+      if (cfg.rpcWorkerMode !== undefined) document.getElementById('rpcWorkerMode').value = cfg.rpcWorkerMode;
+      if (cfg.rpcWorkerHost) document.getElementById('rpcWorkerHost').value = cfg.rpcWorkerHost;
+      if (cfg.rpcWorkerPort) document.getElementById('rpcWorkerPort').value = cfg.rpcWorkerPort;
       if (cfg.mmproj) document.getElementById('mmproj').value = cfg.mmproj;
       if (cfg.mmprojEnabled !== undefined) document.getElementById('mmprojEnabled').checked = cfg.mmprojEnabled === '1';
       if (cfg.imageMinTokens) document.getElementById('imageMinTokens').value = cfg.imageMinTokens;
@@ -1509,7 +1555,7 @@
       'reasoningFormat', 'reasoningBudget', 'nPredict',
       'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
       'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
-      'host', 'port', 'rpcEnabled', 'rpcAddress', 'mmproj', 'mmprojEnabled', 'imageMinTokens',
+      'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit', 'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort', 'mmproj', 'mmprojEnabled', 'imageMinTokens',
       'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled', 'specDraftNMax', 'chatTemplateFile', 'customFlags'
     ];
 
@@ -1556,6 +1602,10 @@
         port: document.getElementById('port').value,
         rpcEnabled: document.getElementById('rpcEnabled').value,
         rpcAddress: document.getElementById('rpcAddress').value,
+        tensorSplit: document.getElementById('tensorSplit').value,
+        rpcWorkerMode: document.getElementById('rpcWorkerMode').value,
+        rpcWorkerHost: document.getElementById('rpcWorkerHost').value,
+        rpcWorkerPort: document.getElementById('rpcWorkerPort').value,
         mmproj: document.getElementById('mmproj').value,
         mmprojEnabled: document.getElementById('mmprojEnabled').checked ? '1' : '0',
         imageMinTokens: document.getElementById('imageMinTokens').value,
@@ -1571,6 +1621,14 @@
 
     // Live preview of flags that will be passed to llama.cpp
     function buildPreview() {
+      if (document.getElementById('rpcWorkerMode').value === '1') {
+        const wHost = document.getElementById('rpcWorkerHost').value.trim() || '0.0.0.0';
+        const wPort = document.getElementById('rpcWorkerPort').value.trim() || '50052';
+        document.getElementById('previewFlags').textContent =
+          `RPC Worker Mode: ggml-rpc-server -H ${wHost} -p ${wPort}  (no model is loaded on this machine)`;
+        return;
+      }
+
       const parts = [];
       const ngl = document.getElementById('ngl').value;
       if (ngl && parseInt(ngl) !== 99) parts.push(`-ngl ${ngl}`);
@@ -1651,7 +1709,11 @@
 
       const rpcEnabled = document.getElementById('rpcEnabled').value;
       const rpcAddress = document.getElementById('rpcAddress').value.trim();
-      if (rpcEnabled === '1' && rpcAddress) parts.push(`--rpc ${rpcAddress}`);
+      if (rpcEnabled === '1' && rpcAddress) {
+        parts.push(`--rpc ${rpcAddress}`);
+        const tensorSplit = document.getElementById('tensorSplit').value.trim();
+        if (tensorSplit) parts.push(`--tensor-split ${tensorSplit}`);
+      }
 
       const mmproj = document.getElementById('mmproj').value.trim();
       if (document.getElementById('mmprojEnabled').checked && mmproj) parts.push(`--mmproj ${mmproj}`);
@@ -1764,6 +1826,8 @@
       document.getElementById('batchSize').value = '512';
       document.getElementById('host').value = '127.0.0.1';
       document.getElementById('port').value = '8080';
+      document.getElementById('rpcAddress').value = '10.0.x.x:50052';
+      document.getElementById('tensorSplit').value = '1,1';
       document.getElementById('contextAmount').value = '';
       document.getElementById('mmproj').value = '';
       document.getElementById('mmprojEnabled').checked = false;
