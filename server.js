@@ -146,7 +146,7 @@ const modelFlags = loadModelFlags();
 const FLAG_KEYS = [
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
-  'reasoningFormat', 'reasoningBudget', 'reasoningEffort',
+  'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'reasoningPreserve',
   'host', 'port', 'noMmap', 'mlock', 'noRepack', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
   'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort',
   'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
@@ -159,7 +159,7 @@ const CONFIG_PERSIST_KEYS = [
   'selectedModel', 'customFlags', 'modelsDir',
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
-  'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'nPredict',
+  'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'reasoningPreserve', 'nPredict',
   'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
   'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
@@ -200,7 +200,7 @@ const ALLOWED_CONFIG_KEYS = [
   'selectedModel', 'customFlags', 'modelsDir',
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
-  'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'nPredict',
+  'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'reasoningPreserve', 'nPredict',
   'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
   'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
@@ -328,6 +328,7 @@ const config = {
   reasoningFormat: 'deepseek',
   reasoningBudget: '0',
   reasoningEffort: '',
+  reasoningPreserve: '0',
   noMmap: '0',
   mlock: '0',
   noRepack: '0',
@@ -1310,6 +1311,13 @@ app.post('/api/start/:id', async (req, res) => {
       // dedicated CLI sampling flag.
       if (config.reasoningEffort && config.reasoningEffort.trim()) {
         args.push('--chat-template-kwargs', JSON.stringify({ reasoning_effort: config.reasoningEffort.trim() }));
+      }
+
+      // Preserve thinking: keeps prior turns' <think> reasoning in context instead of
+      // stripping it before the next request. Needed for agentic multi-turn use where the
+      // model should see its own past reasoning (client must also resend reasoning_content).
+      if (config.reasoningPreserve === '1') {
+        args.push('--reasoning-preserve');
       }
 
       // Max tokens to predict

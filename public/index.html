@@ -794,6 +794,15 @@
                   </select>
                 </div>
               </div>
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Keeps prior turns' <think> reasoning in the context instead of stripping it before the next request. Improves reasoning continuity in multi-turn/agentic use, at the cost of more tokens per request. Requires the client to resend reasoning_content.">
+                  Preserve Thinking
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--reasoning-preserve</span>
+                  <input type="checkbox" id="reasoningPreserve" onchange="onFlagChange('reasoningPreserve')" style="width: 18px; height: 18px; cursor: pointer;">
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1302,6 +1311,7 @@
         reasoningFormat: document.getElementById('reasoningFormat').value,
         reasoningBudget: document.getElementById('reasoningBudget').value,
         reasoningEffort: document.getElementById('reasoningEffort').value,
+        reasoningPreserve: document.getElementById('reasoningPreserve').checked ? '1' : '0',
         host: document.getElementById('host').value,
         port: document.getElementById('port').value,
         noMmap: document.getElementById('noMmap').value,
@@ -1366,6 +1376,7 @@
       if (cfg.reasoningFormat) document.getElementById('reasoningFormat').value = cfg.reasoningFormat;
       if (cfg.reasoningBudget) document.getElementById('reasoningBudget').value = cfg.reasoningBudget;
       if (cfg.reasoningEffort !== undefined) document.getElementById('reasoningEffort').value = cfg.reasoningEffort;
+      document.getElementById('reasoningPreserve').checked = cfg.reasoningPreserve === '1';
       if (cfg.nPredict) document.getElementById('nPredict').value = cfg.nPredict;
       if (cfg.temp) document.getElementById('temp').value = cfg.temp;
       if (cfg.topP) document.getElementById('topP').value = cfg.topP;
@@ -1578,7 +1589,7 @@
     const FLAG_KEYS = [
       'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
       'contextAmount', 'ctk', 'ctv',
-      'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'nPredict',
+      'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'reasoningPreserve', 'nPredict',
       'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
       'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
       'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit', 'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort', 'mmproj', 'mmprojEnabled', 'imageMinTokens',
@@ -1611,6 +1622,7 @@
         reasoningFormat: document.getElementById('reasoningFormat').value,
         reasoningBudget: document.getElementById('reasoningBudget').value,
         reasoningEffort: document.getElementById('reasoningEffort').value,
+        reasoningPreserve: document.getElementById('reasoningPreserve').checked ? '1' : '0',
         nPredict: document.getElementById('nPredict').value,
         temp: document.getElementById('temp').value,
         topP: document.getElementById('topP').value,
@@ -1686,6 +1698,8 @@
 
       const re = document.getElementById('reasoningEffort').value;
       if (re) parts.push(`--chat-template-kwargs '{"reasoning_effort":"${re}"}'`);
+
+      if (document.getElementById('reasoningPreserve').checked) parts.push('--reasoning-preserve');
 
       const np = document.getElementById('nPredict').value;
       if (np && parseInt(np) > 0) parts.push(`--n-predict ${np}`);
@@ -1844,6 +1858,7 @@
       document.getElementById('reasoningFormat').value = 'deepseek';
       document.getElementById('reasoningBudget').value = '0';
       document.getElementById('reasoningEffort').value = '';
+      document.getElementById('reasoningPreserve').checked = false;
       document.getElementById('nPredict').value = '';
       document.getElementById('temp').value = '0.8';
       document.getElementById('topP').value = '0.95';
