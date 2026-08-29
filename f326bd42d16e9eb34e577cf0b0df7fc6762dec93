@@ -1,0 +1,1 @@
+Reviewed: diff confined to public/index.html (+72/-4) and server.js (+69/-13) — RPC worker mode toggle, tensor-split flag, and runtime detection of Ninja vs MSVC build\bin layout on Windows. No unrelated changes.
