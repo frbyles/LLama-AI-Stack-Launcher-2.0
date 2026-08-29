@@ -918,33 +918,73 @@ app.post('/api/add-model-folder', (req, res) => {
   res.json({ success: true, count: found.length });
 });
 
+// Blanks out any companion-file field (mmproj/mtpModel/draftModel/chatTemplateFile) on a
+// flags object that points at a path no longer on disk — the main model can still be fine
+// (moved with its folder intact) while a leftover companion path from before the move
+// crashes the whole llama-server load (see the pre-flight check in /api/start/llamacpp).
+// Also flips off the matching *Enabled flag for mmproj/draft, which strictly require a
+// real file; mtpEnabled is left alone since mtpModel is allowed to be blank by design.
+function pruneStaleCompanions(flags) {
+  let cleaned = 0;
+  if (flags.mmproj && flags.mmproj.trim() && !fs.existsSync(flags.mmproj.trim())) {
+    flags.mmproj = '';
+    flags.mmprojEnabled = '0';
+    cleaned++;
+  }
+  if (flags.mtpModel && flags.mtpModel.trim() && !fs.existsSync(flags.mtpModel.trim())) {
+    flags.mtpModel = '';
+    cleaned++;
+  }
+  if (flags.draftModel && flags.draftModel.trim() && !fs.existsSync(flags.draftModel.trim())) {
+    flags.draftModel = '';
+    flags.draftEnabled = '0';
+    cleaned++;
+  }
+  if (flags.chatTemplateFile && flags.chatTemplateFile.trim() && !fs.existsSync(flags.chatTemplateFile.trim())) {
+    flags.chatTemplateFile = '';
+    cleaned++;
+  }
+  return cleaned;
+}
+
 // Clear the model picker's cache: drops every "Browse for Models Folder" extra
 // directory (the actual source of stale results after a model is moved — the
-// primary modelsDir is left alone) and prunes modelFlags.json entries whose
-// file no longer exists on disk.
+// primary modelsDir is left alone), prunes modelFlags.json entries whose model
+// file no longer exists on disk, and blanks out stale companion paths
+// (mmproj/mtp/draft/chat-template) on entries whose model file is still fine.
 app.post('/api/clear-model-cache', (req, res) => {
   const removedDirs = extraModelDirs.length;
   extraModelDirs.length = 0;
   saveExtraModelDirs(extraModelDirs);
 
   let removedFlags = 0;
-  for (const modelPath of Object.keys(modelFlags)) {
+  let cleanedCompanions = 0;
+  for (const [modelPath, flags] of Object.entries(modelFlags)) {
     if (!fs.existsSync(modelPath)) {
       delete modelFlags[modelPath];
       removedFlags++;
+    } else {
+      cleanedCompanions += pruneStaleCompanions(flags);
     }
   }
-  if (removedFlags > 0) saveModelFlags(modelFlags);
+  if (removedFlags > 0 || cleanedCompanions > 0) saveModelFlags(modelFlags);
 
   // If the currently selected model no longer exists, clear the selection too.
+  // Otherwise still prune any stale companion paths on the live in-memory config
+  // (mirrors whichever model's flags were loaded last) so the next start doesn't
+  // hit the same dead path.
   let clearedSelection = false;
+  let configChanged = false;
   if (config.selectedModel && !fs.existsSync(config.selectedModel)) {
     config.selectedModel = null;
-    saveLauncherConfig(config);
     clearedSelection = true;
+    configChanged = true;
+  } else if (config.selectedModel) {
+    configChanged = pruneStaleCompanions(config) > 0;
   }
+  if (configChanged) saveLauncherConfig(config);
 
-  res.json({ success: true, removedDirs, removedFlags, clearedSelection });
+  res.json({ success: true, removedDirs, removedFlags, cleanedCompanions, clearedSelection });
 });
 
 // Set a project directory (persisted across restarts)
@@ -1369,6 +1409,31 @@ app.post('/api/start/:id', async (req, res) => {
       if (config.customFlags && config.customFlags.trim()) {
         const customArgs = config.customFlags.trim().split(/\s+/);
         args = args.concat(customArgs);
+      }
+
+      // Pre-flight check: llama-server aborts its ENTIRE load (main model included) if any
+      // companion file it's told to load is missing — e.g. a moved/deleted mmproj crashes
+      // the whole process a few seconds in, after this endpoint has already responded
+      // "starting...". Catch that here so the UI gets a real error instead of a false
+      // success followed by a silent crash.
+      const missingFiles = [];
+      if (!fs.existsSync(config.selectedModel)) missingFiles.push(`Model: ${config.selectedModel}`);
+      if (config.mmprojEnabled === '1' && config.mmproj && config.mmproj.trim() && !fs.existsSync(config.mmproj.trim())) {
+        missingFiles.push(`mmproj: ${config.mmproj.trim()}`);
+      }
+      if (config.mtpEnabled === '1' && config.mtpModel && config.mtpModel.trim() && !fs.existsSync(config.mtpModel.trim())) {
+        missingFiles.push(`MTP model: ${config.mtpModel.trim()}`);
+      }
+      if (config.draftEnabled === '1' && config.draftModel && config.draftModel.trim() && !fs.existsSync(config.draftModel.trim())) {
+        missingFiles.push(`Draft model: ${config.draftModel.trim()}`);
+      }
+      if (config.chatTemplateFile && config.chatTemplateFile.trim() && !fs.existsSync(config.chatTemplateFile.trim())) {
+        missingFiles.push(`Chat template: ${config.chatTemplateFile.trim()}`);
+      }
+      if (missingFiles.length > 0) {
+        return res.status(400).json({
+          error: `Cannot start — file(s) not found (probably moved or deleted):\n${missingFiles.join('\n')}`
+        });
       }
     }
   }

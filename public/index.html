@@ -393,6 +393,7 @@
       border-radius: 6px;
       font-size: 0.9em;
       text-align: center;
+      white-space: pre-line;
     }
 
     .message.success {
@@ -1281,7 +1282,11 @@
         body: body ? JSON.stringify(body) : undefined
       });
       const data = await res.json();
-      showMessage(id, data.message, 'success');
+      if (!res.ok) {
+        showMessage(id, data.error || 'Failed to start', 'error');
+      } else {
+        showMessage(id, data.message, 'success');
+      }
       setTimeout(loadProjects, 500);
     }
 
@@ -1350,7 +1355,9 @@
       const msgEl = document.getElementById(isConfig ? 'configMessage' : `msg-${id}`);
       msgEl.textContent = text;
       msgEl.className = `message ${type}`;
-      setTimeout(() => msgEl.textContent = '', 3000);
+      // Errors often list multiple file paths — give them longer to read than a
+      // one-line success toast.
+      setTimeout(() => msgEl.textContent = '', type === 'error' ? 10000 : 3000);
     }
 
     async function loadConfig() {
@@ -2005,8 +2012,8 @@
       const data = await res.json();
 
       const status = document.getElementById('modelScanStatus');
-      status.textContent = `🧹 Cleared ${data.removedDirs} extra folder(s), removed ${data.removedFlags} stale flag set(s)`;
-      setTimeout(() => { status.textContent = ''; }, 4000);
+      status.textContent = `🧹 Cleared ${data.removedDirs} extra folder(s), removed ${data.removedFlags} stale flag set(s), fixed ${data.cleanedCompanions || 0} stale companion path(s)`;
+      setTimeout(() => { status.textContent = ''; }, 5000);
 
       if (data.clearedSelection) {
         document.getElementById('modelSelect').value = '';
