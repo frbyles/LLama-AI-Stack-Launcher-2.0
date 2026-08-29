@@ -1252,6 +1252,31 @@ app.post('/api/start/:id', async (req, res) => {
     env.PORT = String(proj.port);
   }
 
+  // Understory reads BUNDLE_ROOT/LLM_API_* straight from process.env with no .env
+  // loading of its own when run from source (only Docker Compose injects real env
+  // vars) — `pnpm dev` otherwise exits immediately with "BUNDLE_ROOT env var is
+  // required" and the web UI is left pointing at a dead backend. Inject sane
+  // defaults here so Start just works; anything already in the real environment
+  // (a shell export, or a genuine .env this instance happens to load) still wins.
+  if (req.params.id === 'understory') {
+    const bundleRoot = path.join(proj.dir, 'my-memory');
+    if (!fs.existsSync(bundleRoot)) {
+      fs.mkdirSync(bundleRoot, { recursive: true });
+      fs.writeFileSync(
+        path.join(bundleRoot, 'index.md'),
+        '---\nokf_version: "0.1"\n---\n\n# Knowledge Base\n\n## Memory Segments\n',
+        'utf8'
+      );
+      fs.writeFileSync(path.join(bundleRoot, 'log.md'), '# Directory Update Log\n', 'utf8');
+    }
+    const llamacppProj = getProject('llamacpp');
+    env.BUNDLE_ROOT = env.BUNDLE_ROOT || bundleRoot;
+    env.LLM_API_BASE_URL = env.LLM_API_BASE_URL || `${llamacppProj.url}/v1`;
+    env.LLM_API_FORMAT = env.LLM_API_FORMAT || 'openai';
+    if (env.LLM_MODEL === undefined) env.LLM_MODEL = '';
+    env.PORT = env.PORT || String(proj.port);
+  }
+
   let args = [...proj.args];
 
   // For the terminal agent card, swap in whichever coding agent CLI the user picked
