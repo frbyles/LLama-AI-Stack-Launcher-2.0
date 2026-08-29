@@ -146,7 +146,7 @@ const modelFlags = loadModelFlags();
 const FLAG_KEYS = [
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
-  'reasoningFormat', 'reasoningBudget',
+  'reasoningFormat', 'reasoningBudget', 'reasoningEffort',
   'host', 'port', 'noMmap', 'mlock', 'noRepack', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
   'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort',
   'mmproj', 'mmprojEnabled', 'imageMinTokens', 'mtpModel', 'mtpEnabled', 'draftModel', 'draftEnabled',
@@ -159,7 +159,7 @@ const CONFIG_PERSIST_KEYS = [
   'selectedModel', 'customFlags', 'modelsDir',
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
-  'reasoningFormat', 'reasoningBudget', 'nPredict',
+  'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'nPredict',
   'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
   'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
@@ -200,7 +200,7 @@ const ALLOWED_CONFIG_KEYS = [
   'selectedModel', 'customFlags', 'modelsDir',
   'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
   'contextAmount', 'ctk', 'ctv',
-  'reasoningFormat', 'reasoningBudget', 'nPredict',
+  'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'nPredict',
   'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
   'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
   'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit',
@@ -327,6 +327,7 @@ const config = {
   ctv: 'q8_0',
   reasoningFormat: 'deepseek',
   reasoningBudget: '0',
+  reasoningEffort: '',
   noMmap: '0',
   mlock: '0',
   noRepack: '0',
@@ -916,6 +917,35 @@ app.post('/api/add-model-folder', (req, res) => {
   res.json({ success: true, count: found.length });
 });
 
+// Clear the model picker's cache: drops every "Browse for Models Folder" extra
+// directory (the actual source of stale results after a model is moved — the
+// primary modelsDir is left alone) and prunes modelFlags.json entries whose
+// file no longer exists on disk.
+app.post('/api/clear-model-cache', (req, res) => {
+  const removedDirs = extraModelDirs.length;
+  extraModelDirs.length = 0;
+  saveExtraModelDirs(extraModelDirs);
+
+  let removedFlags = 0;
+  for (const modelPath of Object.keys(modelFlags)) {
+    if (!fs.existsSync(modelPath)) {
+      delete modelFlags[modelPath];
+      removedFlags++;
+    }
+  }
+  if (removedFlags > 0) saveModelFlags(modelFlags);
+
+  // If the currently selected model no longer exists, clear the selection too.
+  let clearedSelection = false;
+  if (config.selectedModel && !fs.existsSync(config.selectedModel)) {
+    config.selectedModel = null;
+    saveLauncherConfig(config);
+    clearedSelection = true;
+  }
+
+  res.json({ success: true, removedDirs, removedFlags, clearedSelection });
+});
+
 // Set a project directory (persisted across restarts)
 app.post('/api/set-project-dir', (req, res) => {
   const { projectId, dir } = req.body;
@@ -1274,6 +1304,13 @@ app.post('/api/start/:id', async (req, res) => {
       if (config.ctv && config.ctv !== 'q8_0') args.push('-ctv', config.ctv);
       if (config.reasoningFormat && config.reasoningFormat !== 'deepseek') args.push('--reasoning-format', config.reasoningFormat);
       if (config.reasoningBudget && parseInt(config.reasoningBudget) !== 0) args.push('--reasoning-budget', config.reasoningBudget);
+
+      // Reasoning effort (Qwen3.8-27B and similar reasoning-effort-aware chat templates:
+      // xhigh/medium/low/none). Threaded into the jinja chat template as a kwarg, not a
+      // dedicated CLI sampling flag.
+      if (config.reasoningEffort && config.reasoningEffort.trim()) {
+        args.push('--chat-template-kwargs', JSON.stringify({ reasoning_effort: config.reasoningEffort.trim() }));
+      }
 
       // Max tokens to predict
       if (config.nPredict && parseInt(config.nPredict) > 0) args.push('--n-predict', config.nPredict);

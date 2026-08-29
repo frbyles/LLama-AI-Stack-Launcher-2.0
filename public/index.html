@@ -621,6 +621,7 @@
             </select>
             <div id="modelScanStatus" style="font-size: 0.85em; color: #4caf50; margin-top: 6px;"></div>
             <button id="addModelFolderBtn" class="btn-add-model" style="margin-top: 10px; width: 100%; padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.85em;" title="Select a folder on your computer that contains .gguf model files. The folder will be scanned for models.">📂 Browse for Models Folder</button>
+            <button id="clearModelCacheBtn" class="btn-clear-model-cache" style="margin-top: 6px; width: 100%; padding: 8px 12px; background: #eee; color: #666; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; font-size: 0.85em;" title="Forget every extra folder added via 'Browse for Models Folder' and remove saved settings for models that no longer exist on disk. Use this if a moved/deleted model keeps showing up in the list.">🧹 Clear Model Cache</button>
           </div>
           <div id="modelInfo" style="flex: 1; padding: 12px; background: #f5f5f5; border-radius: 6px; color: #666; font-size: 0.9em;">
             Select a model to see details
@@ -778,6 +779,21 @@
                   <input type="number" id="reasoningBudget" min="0" max="999999" value="0" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9em;" oninput="onFlagChange('reasoningBudget')" onchange="onFlagChange('reasoningBudget')">
                 </div>
               </div>
+              <div class="config-field" style="min-width: 90px;">
+                <label title="Reasoning effort for models whose chat template reads it (e.g. Qwen3.8-27B). Sent to llama-server as --chat-template-kwargs '{&quot;reasoning_effort&quot;:...}'. Leave blank/(default) to not send it.">
+                  Reasoning Effort
+                </label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--chat-template-kwargs</span>
+                  <select id="reasoningEffort" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('reasoningEffort')">
+                    <option value="" selected>(default)</option>
+                    <option value="xhigh">xhigh</option>
+                    <option value="medium">medium</option>
+                    <option value="low">low</option>
+                    <option value="none">none</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -800,6 +816,14 @@
           <!-- Sampling Group -->
           <div style="margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
             <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🎛️ Sampling</div>
+            <div class="config-row" style="margin-bottom: 8px;">
+              <button type="button" class="btn" style="font-size: 0.8em; padding: 5px 10px;" onclick="applyQwen3_8_27BPreset('thinking')" title="temp 1.0, top-p 0.95, top-k 20, min-p 0.0, presence-penalty 0.0, repeat-penalty 1.0 — per Unsloth's Qwen3.8-27B docs">
+                Qwen3.8-27B: Thinking preset
+              </button>
+              <button type="button" class="btn" style="font-size: 0.8em; padding: 5px 10px;" onclick="applyQwen3_8_27BPreset('instruct')" title="temp 0.7, top-p 0.80, top-k 20, min-p 0.0, presence-penalty 1.5, repeat-penalty 1.0 — per Unsloth's Qwen3.8-27B docs">
+                Qwen3.8-27B: Instruct preset
+              </button>
+            </div>
             <div class="config-row">
               <div class="config-field" style="min-width: 85px;">
                 <label title="Temperature. Higher = more creative/random, lower = more focused/deterministic. 0 = greedy.">
@@ -1277,6 +1301,7 @@
         ctv: document.getElementById('ctv').value,
         reasoningFormat: document.getElementById('reasoningFormat').value,
         reasoningBudget: document.getElementById('reasoningBudget').value,
+        reasoningEffort: document.getElementById('reasoningEffort').value,
         host: document.getElementById('host').value,
         port: document.getElementById('port').value,
         noMmap: document.getElementById('noMmap').value,
@@ -1340,6 +1365,7 @@
       if (cfg.ctv) document.getElementById('ctv').value = cfg.ctv;
       if (cfg.reasoningFormat) document.getElementById('reasoningFormat').value = cfg.reasoningFormat;
       if (cfg.reasoningBudget) document.getElementById('reasoningBudget').value = cfg.reasoningBudget;
+      if (cfg.reasoningEffort !== undefined) document.getElementById('reasoningEffort').value = cfg.reasoningEffort;
       if (cfg.nPredict) document.getElementById('nPredict').value = cfg.nPredict;
       if (cfg.temp) document.getElementById('temp').value = cfg.temp;
       if (cfg.topP) document.getElementById('topP').value = cfg.topP;
@@ -1552,7 +1578,7 @@
     const FLAG_KEYS = [
       'ngl', 'nCpuMoe', 'fa', 'jinja', 'cnv',
       'contextAmount', 'ctk', 'ctv',
-      'reasoningFormat', 'reasoningBudget', 'nPredict',
+      'reasoningFormat', 'reasoningBudget', 'reasoningEffort', 'nPredict',
       'temp', 'topP', 'topK', 'repeatPenalty', 'repeatLastN', 'minP', 'presencePenalty',
       'threads', 'threadsBatch', 'batchSize', 'noMmap', 'mlock', 'noRepack',
       'host', 'port', 'rpcEnabled', 'rpcAddress', 'tensorSplit', 'rpcWorkerMode', 'rpcWorkerHost', 'rpcWorkerPort', 'mmproj', 'mmprojEnabled', 'imageMinTokens',
@@ -1584,6 +1610,7 @@
         ctv: document.getElementById('ctv').value,
         reasoningFormat: document.getElementById('reasoningFormat').value,
         reasoningBudget: document.getElementById('reasoningBudget').value,
+        reasoningEffort: document.getElementById('reasoningEffort').value,
         nPredict: document.getElementById('nPredict').value,
         temp: document.getElementById('temp').value,
         topP: document.getElementById('topP').value,
@@ -1656,6 +1683,9 @@
 
       const rb = document.getElementById('reasoningBudget').value;
       if (rb !== '0') parts.push(`--reasoning-budget ${rb}`);
+
+      const re = document.getElementById('reasoningEffort').value;
+      if (re) parts.push(`--chat-template-kwargs '{"reasoning_effort":"${re}"}'`);
 
       const np = document.getElementById('nPredict').value;
       if (np && parseInt(np) > 0) parts.push(`--n-predict ${np}`);
@@ -1813,6 +1843,7 @@
       document.getElementById('ctv').value = 'q8_0';
       document.getElementById('reasoningFormat').value = 'deepseek';
       document.getElementById('reasoningBudget').value = '0';
+      document.getElementById('reasoningEffort').value = '';
       document.getElementById('nPredict').value = '';
       document.getElementById('temp').value = '0.8';
       document.getElementById('topP').value = '0.95';
@@ -1841,6 +1872,26 @@
       document.getElementById('customFlags').value = '';
       buildPreview();
       onContextAmountChange();
+    }
+
+    // Unsloth-documented sampling settings for Qwen3.8-27B (docs.unsloth.ai/docs/models/qwen3.8).
+    // Thinking mode and Instruct (non-thinking) mode call for different values — this only
+    // touches the sampling fields (leaves ngl/context/etc alone) and saves for the current model.
+    function applyQwen3_8_27BPreset(mode) {
+      const presets = {
+        thinking: { temp: '1.0', topP: '0.95', topK: '20', minP: '0.0', presencePenalty: '0.0', repeatPenalty: '1.0' },
+        instruct: { temp: '0.7', topP: '0.80', topK: '20', minP: '0.0', presencePenalty: '1.5', repeatPenalty: '1.0' }
+      };
+      const p = presets[mode];
+      if (!p) return;
+      document.getElementById('temp').value = p.temp;
+      document.getElementById('topP').value = p.topP;
+      document.getElementById('topK').value = p.topK;
+      document.getElementById('minP').value = p.minP;
+      document.getElementById('presencePenalty').value = p.presencePenalty;
+      document.getElementById('repeatPenalty').value = p.repeatPenalty;
+      buildPreview();
+      saveFlagsForCurrentModel();
     }
 
     // ADDED: Model Folder Browser
@@ -1929,6 +1980,25 @@
 
     document.getElementById('addModelFolderBtn').addEventListener('click', function() {
       openFolderBrowser();
+    });
+
+    document.getElementById('clearModelCacheBtn').addEventListener('click', async function() {
+      if (!confirm('Forget all extra model folders and remove saved settings for models that no longer exist? The primary models folder is kept.')) return;
+
+      const res = await fetch('/api/clear-model-cache', { method: 'POST' });
+      const data = await res.json();
+
+      const status = document.getElementById('modelScanStatus');
+      status.textContent = `🧹 Cleared ${data.removedDirs} extra folder(s), removed ${data.removedFlags} stale flag set(s)`;
+      setTimeout(() => { status.textContent = ''; }, 4000);
+
+      if (data.clearedSelection) {
+        document.getElementById('modelSelect').value = '';
+        document.getElementById('modelInfo').textContent = 'Select a model to see details';
+        document.getElementById('resetFlagsBtn').style.display = 'none';
+      }
+
+      loadModels();
     });
 
     document.getElementById('folderBrowserSelect').addEventListener('click', async function() {
