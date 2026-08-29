@@ -758,15 +758,16 @@
             <div class="flag-group-label" style="font-size: 0.8em; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">🧘 Reasoning</div>
             <div class="config-row">
               <div class="config-field" style="min-width: 90px;">
-                <label title="Reasoning chain format. 'deepseek' for DeepSeek-style CoT, 'none' to disable.">
+                <label title="How reasoning/thinking output is parsed. 'auto' (llama.cpp's default) detects the right format for the model. 'deepseek' puts thoughts in message.reasoning_content. 'deepseek-legacy' keeps <think> tags in message.content too. 'none' leaves thoughts unparsed in message.content (disables special handling, doesn't stop the model from thinking — use Reasoning Effort/Budget for that).">
                   Reasoning Format
                 </label>
                 <div style="display: flex; gap: 6px; align-items: center;">
                   <span style="font-family: monospace; font-size: 0.85em; color: #667eea; font-weight: 600; white-space: nowrap;">--reasoning-format</span>
                   <select id="reasoningFormat" style="flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;" onchange="onFlagChange('reasoningFormat')">
-                    <option value="deepseek" selected>deepseek</option>
-                    <option value="none">none (disabled)</option>
-                    <option value="thinking">thinking</option>
+                    <option value="auto" selected>auto (default)</option>
+                    <option value="deepseek">deepseek</option>
+                    <option value="deepseek-legacy">deepseek-legacy</option>
+                    <option value="none">none</option>
                   </select>
                 </div>
               </div>
@@ -1691,7 +1692,7 @@
       if (ctv !== 'q8_0') parts.push(`-ctv ${ctv}`);
 
       const rf = document.getElementById('reasoningFormat').value;
-      if (rf !== 'deepseek') parts.push(`--reasoning-format ${rf}`);
+      if (rf && rf !== 'auto') parts.push(`--reasoning-format ${rf}`);
 
       const rb = document.getElementById('reasoningBudget').value;
       if (rb !== '0') parts.push(`--reasoning-budget ${rb}`);
@@ -1855,7 +1856,7 @@
       document.getElementById('cnv').value = '1';
       document.getElementById('ctk').value = 'q8_0';
       document.getElementById('ctv').value = 'q8_0';
-      document.getElementById('reasoningFormat').value = 'deepseek';
+      document.getElementById('reasoningFormat').value = 'auto';
       document.getElementById('reasoningBudget').value = '0';
       document.getElementById('reasoningEffort').value = '';
       document.getElementById('reasoningPreserve').checked = false;

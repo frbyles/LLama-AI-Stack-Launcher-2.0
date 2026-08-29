@@ -325,7 +325,7 @@ const config = {
   cnv: '1',
   ctk: 'q8_0',
   ctv: 'q8_0',
-  reasoningFormat: 'deepseek',
+  reasoningFormat: 'auto',
   reasoningBudget: '0',
   reasoningEffort: '',
   reasoningPreserve: '0',
@@ -1303,7 +1303,7 @@ app.post('/api/start/:id', async (req, res) => {
       if (config.cnv && config.cnv !== '1') args.push('-cnv', config.cnv);
       if (config.ctk && config.ctk !== 'q8_0') args.push('-ctk', config.ctk);
       if (config.ctv && config.ctv !== 'q8_0') args.push('-ctv', config.ctv);
-      if (config.reasoningFormat && config.reasoningFormat !== 'deepseek') args.push('--reasoning-format', config.reasoningFormat);
+      if (config.reasoningFormat && config.reasoningFormat !== 'auto') args.push('--reasoning-format', config.reasoningFormat);
       if (config.reasoningBudget && parseInt(config.reasoningBudget) !== 0) args.push('--reasoning-budget', config.reasoningBudget);
 
       // Reasoning effort (Qwen3.8-27B and similar reasoning-effort-aware chat templates:
